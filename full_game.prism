@@ -217,10 +217,10 @@ module AWvAW
 // init when setup = 9
   [begin_AWvAW]	setup = 9 & attack = 10 -> (p1c1' = Archer_health) & (p1c2' = Wizard_health) & (p2c1' = Archer_health) & (p2c2' = Wizard_health) & (attack' = 0);
   // Action decision
-  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p1c1 > 0 & (p2c1 > 0 | p2c2 > 0) & !p1c1_s -> (attack' = 1) & (p1c1_s' = false) & (p1c2_s' = false);
-  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p1c2 > 0 & p2c1 > 0 & !p1c2_s -> (attack' = 3) & (p1c1_s' = false) & (p1c2_s' = false);
-  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p1c2 > 0 & p2c2 > 0 & !p1c2_s -> (attack' = 4) & (p1c1_s' = false) & (p1c2_s' = false);
-  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 -> (attack' = 9) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 1 & p1c1 > 0 & (p2c1 > 0 | p2c2 > 0) & !p1c1_s -> (attack' = 1) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 1 & p1c2 > 0 & p2c1 > 0 & !p1c2_s -> (attack' = 3) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 1 & p1c2 > 0 & p2c2 > 0 & !p1c2_s -> (attack' = 4) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 1 -> (attack' = 9) & (p1c1_s' = false) & (p1c2_s' = false);
   [p2_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p2c1 > 0 & (p1c1 > 0 | p1c2 > 0) & !p2c1_s -> (attack' = 5) & (p2c1_s' = false) & (p2c2_s' = false);
   [p2_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p2c2 > 0 & p1c1 > 0 & !p2c2_s -> (attack' = 7) & (p2c1_s' = false) & (p2c2_s' = false);
   [p2_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p2c2 > 0 & p1c2 > 0 & !p2c2_s -> (attack' = 8) & (p2c1_s' = false) & (p2c2_s' = false);
