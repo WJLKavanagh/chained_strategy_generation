@@ -1,0 +1,248 @@
+smg
+
+const int Knight_health = 8;
+const int Knight_damage = 3;
+const double Knight_accuracy = 0.7;
+
+const int Archer_health = 7;
+const int Archer_damage = 2;
+const double Archer_accuracy = 0.8;
+
+const int Wizard_health = 6;
+const int Wizard_damage = 2;
+const double Wizard_accuracy = 0.75;
+
+global attack : [0..10] init 10;		// Action decision: 0 - NONE, 1 - p1c1>p2c1, 2 - p1c1>p2c2, 3 - p1c2>p2c1, 4 - p1c2>p2c2, 5 - p2c1>p1c1, 6 - p2c1>p1c2, 7 - p2c2>p1c1, 8 - p2c2 > p1c2, 9 - NEXT TURN, 10 - init.
+global turn   : [0..2];			// Team to act.
+global setup  : [0..9];			// Final setup of characters: 0 - unchosen, 1 - KAvKA, 2 - KAvKW, 3 - KAvAW, 4 - KWvKA, 5 - KWvKW, 6 - KWvAW, 7 - AWvKA, 8 - AWvKW, 9 - AWvAW.
+global p1c1   : [health_floor..health_ceiling];
+global p1c2   : [health_floor..health_ceiling];
+global p2c1   : [health_floor..health_ceiling];
+global p2c2   : [health_floor..health_ceiling];
+global p1c1_s : bool;
+global p1c2_s : bool;
+global p2c1_s : bool;
+global p2c2_s : bool;
+
+player p1
+  [select_p1c1], [select_p1c2], [p1_turn_KAvKA], [p1_turn_KAvKW], [p1_turn_KAvAW], [p1_turn_KWvAW], [p1_turn_KWvKW], [p1_turn_AWvAW]
+endplayer
+
+player p2
+  [select_p2c1], [select_p2c2], [p2_turn_KAvKA], [p2_turn_KAvKW], [p2_turn_KAvAW], [p2_turn_KWvAW], [p2_turn_KWvKW], [p2_turn_AWvAW]
+endplayer
+
+module choose_characters
+// A - B - B - A character selection. Use PxCx here to represent selected characters: health_floor - unchosen, 1 - Knight, 2 - Archer, 3 - Wizard
+  chars_selected     : [0..4];
+  [flip_coin]	turn = 0 -> 0.5 : (turn' = 1) + 0.5 : (turn' = 2);
+// Select first character (A1)
+  [select_p1c1]	chars_selected = 0 & turn = 1 -> (p1c1' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p1c1]	chars_selected = 0 & turn = 1 -> (p1c1' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p1c1]	chars_selected = 0 & turn = 1 -> (p1c1' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p2c1]	chars_selected = 0 & turn = 2 -> (p2c1' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p2c1]	chars_selected = 0 & turn = 2 -> (p2c1' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p2c1]	chars_selected = 0 & turn = 2 -> (p2c1' = 3) & (chars_selected' = chars_selected + 1);
+// Select second character (B1)
+  [select_p1c1]	chars_selected = 1 & turn = 2 -> (p1c1' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p1c1]	chars_selected = 1 & turn = 2 -> (p1c1' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p1c1]	chars_selected = 1 & turn = 2 -> (p1c1' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p2c1]	chars_selected = 1 & turn = 1 -> (p2c1' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p2c1]	chars_selected = 1 & turn = 1 -> (p2c1' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p2c1]	chars_selected = 1 & turn = 1 -> (p2c1' = 3) & (chars_selected' = chars_selected + 1);
+// Select third character (B2) - Constraint: P_c1 != P_c2 - Constraint: Knight never in position 2
+  [select_p1c2]	chars_selected = 2 & turn = 2 & p1c1 != 1 -> (p1c2' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p1c2]	chars_selected = 2 & turn = 2 & p1c1 != 2 -> (p1c2' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p1c2]	chars_selected = 2 & turn = 2 & p1c1 != 3 -> (p1c2' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p2c2]	chars_selected = 2 & turn = 1 & p2c1 != 1 -> (p2c2' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p2c2]	chars_selected = 2 & turn = 1 & p2c1 != 2 -> (p2c2' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p2c2]	chars_selected = 2 & turn = 1 & p2c1 != 3 -> (p2c2' = 3) & (chars_selected' = chars_selected + 1);
+// Select fourth character (A2)
+  [select_p1c2]	chars_selected = 3 & turn = 1 & p1c1 != 1 -> (p1c2' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p1c2]	chars_selected = 3 & turn = 1 & p1c1 != 2 -> (p1c2' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p1c2]	chars_selected = 3 & turn = 1 & p1c1 != 3 -> (p1c2' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p2c2]	chars_selected = 3 & turn = 2 & p2c1 != 1 -> (p2c2' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p2c2]	chars_selected = 3 & turn = 2 & p2c1 != 2 -> (p2c2' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p2c2]	chars_selected = 3 & turn = 2 & p2c1 != 3 -> (p2c2' = 3) & (chars_selected' = chars_selected + 1);
+// Init correct module:		1 - KAvKA, 2 - KAvKW, 3 - KAvAW, 4 - KWvKA, 5 - KWvKW, 6 - KWvAW, 7 - AWvKA, 8 - AWvKW, 9 - AWvAW.
+  [configure_setup] setup = 0 & p1c1+p1c2 = 3 & p2c1+p2c2 = 3 -> (setup' = 1);			// KA v KA
+  [configure_setup] setup = 0 & p1c1+p1c2 = 3 & p2c1+p2c2 = 4 -> (setup' = 2);			// KA v KW
+  [configure_setup] setup = 0 & p1c1+p1c2 = 3 & p2c1+p2c2 = 5 -> (setup' = 3);			// KA v WA
+  [configure_setup] setup = 0 & p1c1+p1c2 = 4 & p2c1+p2c2 = 3 -> (setup' = 4);			// KW v KA	= flipped (KA v KW)
+  [configure_setup] setup = 0 & p1c1+p1c2 = 4 & p2c1+p2c2 = 4 -> (setup' = 5);			// KW v KW
+  [configure_setup] setup = 0 & p1c1+p1c2 = 4 & p2c1+p2c2 = 5 -> (setup' = 6);			// KW v AW
+  [configure_setup] setup = 0 & p1c1+p1c2 = 5 & p2c1+p2c2 = 3 -> (setup' = 7);			// AW v KA	= flipped (KA v AW)
+  [configure_setup] setup = 0 & p1c1+p1c2 = 5 & p2c1+p2c2 = 4 -> (setup' = 8);			// AW v KW	= flipped (KW v AW)
+  [configure_setup] setup = 0 & p1c1+p1c2 = 5 & p2c1+p2c2 = 5 -> (setup' = 9);			// AW v AW
+// next_turn
+  [next_turn] attack = 9 & (p1c1 > 0 | p1c2 > 0) & (p2c1 > 0 | p2c2 > 0) & setup > 0 -> (attack' = 0) & (turn' = 3 - turn);
+endmodule
+
+module KAvKA
+// init when setup = 1
+  [begin_KAvKA]	setup = 1  & attack = 10 -> (p1c1' = Knight_health) & (p1c2' = Archer_health) & (p2c1' = Knight_health) & (p2c2' = Archer_health) & (attack' = 0);
+// Action decision
+  [p1_turn_KAvKA] setup = 1 & attack = 0 & turn = 1 & p1c1 > 0 & p2c1 > 0 -> (attack' = 1);
+  [p1_turn_KAvKA] setup = 1 & attack = 0 & turn = 1 & p1c1 > 0 & p2c2 > 0 -> (attack' = 2);
+  [p1_turn_KAvKA] setup = 1 & attack = 0 & turn = 1 & p1c2 > 0 & (p2c1 > 0 | p2c2 > 0) -> (attack' = 3);
+  [p2_turn_KAvKA] setup = 1 & attack = 0 & turn = 2 & p2c1 > 0 & p1c1 > 0 -> (attack' = 5);
+  [p2_turn_KAvKA] setup = 1 & attack = 0 & turn = 2 & p2c1 > 0 & p1c2 > 0 -> (attack' = 6);
+  [p2_turn_KAvKA] setup = 1 & attack = 0 & turn = 2 & p2c2 > 0 & (p1c1 > 0 | p1c2 > 0) -> (attack' = 7);
+// Action resolution player 1
+  [p1c1_p2c1_KAvKA] setup = 1 & attack = 1 & p2c1 > 0 -> Knight_accuracy: (attack' = 9) & (p2c1' = p2c1 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p1c1_p2c2_KAvKA] setup = 1 & attack = 2 & p2c2 > 0 -> Knight_accuracy: (attack' = 9) & (p2c2' = p2c2 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p1c2_p2c1_KAvKA] setup = 1 & attack = 3 & p2c1 > 0 -> Archer_accuracy: (attack' = 4) & (p2c1' = p2c1 - Archer_damage) + 1 - Archer_accuracy: (attack' = 4);
+  [p1c2_p2c1_KAvKA] setup = 1 & attack = 3 & p2c1 < 1 -> (attack' = 4);
+  [p1c2_p2c2_KAvKA] setup = 1 & attack = 4 & p2c2 > 0 -> Archer_accuracy: (attack' = 9) & (p2c2' = p2c2 - Archer_damage) + 1 - Archer_accuracy: (attack' = 9);
+  [p1c2_p2c2_KAvKA] setup = 1 & attack = 4 & p2c2 < 1 -> (attack' = 9);
+// Action resolution player 2
+  [p2c1_p1c1_KAvKA] setup = 1 & attack = 5 & p1c1 > 0 -> Knight_accuracy: (attack' = 9) & (p1c1' = p1c1 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p2c1_p1c2_KAvKA] setup = 1 & attack = 6 & p1c2 > 0 -> Knight_accuracy: (attack' = 9) & (p1c2' = p1c2 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p2c2_p1c1_KAvKA] setup = 1 & attack = 7 & p1c1 > 0 -> Archer_accuracy: (attack' = 8) & (p1c1' = p1c1 - Archer_damage) + 1 - Archer_accuracy: (attack' = 8);
+  [p2c2_p1c1_KAvKA] setup = 1 & attack = 7 & p1c1 < 1 -> (attack' = 8);
+  [p2c2_p1c2_KAvKA] setup = 1 & attack = 8 & p1c2 > 0 -> Archer_accuracy: (attack' = 9) & (p1c2' = p1c2 - Archer_damage) + 1 - Archer_accuracy: (attack' = 9);
+  [p2c2_p1c2_KAvKA] setup = 1 & attack = 8 & p1c2 < 1 -> (attack' = 9);
+endmodule
+
+module KAvKW
+// init when setup = 2 or init flipped when setup = 4
+  [begin_KAvKW]	setup = 2 & attack = 10 -> (p1c1' = Knight_health) & (p1c2' = Archer_health) & (p2c1' = Knight_health) & (p2c2' = Wizard_health) & (attack' = 0);
+  [begin_KAvKW]	setup = 4 & attack = 10 -> (p2c1' = Knight_health) & (p2c2' = Archer_health) & (p1c1' = Knight_health) & (p1c2' = Wizard_health) & (attack' = 0) & (setup' = 2);
+// Action decision
+  [p1_turn_KAvKW] setup = 2 & attack = 0 & turn = 1 & p1c1 > 0 & p2c1 > 0 & !p1c1_s -> (attack' = 1) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KAvKW] setup = 2 & attack = 0 & turn = 1 & p1c1 > 0 & p2c2 > 0 & !p1c2_s -> (attack' = 2) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KAvKW] setup = 2 & attack = 0 & turn = 1 & p1c2 > 0 & (p2c1 > 0 | p2c2 > 0) & !p2c2_s -> (attack' = 3) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KAvKW] setup = 2 & attack = 0 & turn = 1 -> (attack' = 9) & (p1c1_s' = false) & (p1c2_s' = false);	// skip
+  [p2_turn_KAvKW] setup = 2 & attack = 0 & turn = 2 & p2c1 > 0 & p1c1 > 0 -> (attack' = 5);
+  [p2_turn_KAvKW] setup = 2 & attack = 0 & turn = 2 & p2c1 > 0 & p1c2 > 0 -> (attack' = 6);
+  [p2_turn_KAvKW] setup = 2 & attack = 0 & turn = 2 & p2c2 > 0 & p1c1 > 0 -> (attack' = 7);
+  [p2_turn_KAvKW] setup = 2 & attack = 0 & turn = 2 & p2c2 > 0 & p1c2 > 0 -> (attack' = 8);
+// Action resolution player 1
+  [p1c1_p2c1_KAvKW] setup = 2 & attack = 1 & p2c1 > 0 -> Knight_accuracy: (attack' = 9) & (p2c1' = p2c1 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p1c1_p2c2_KAvKW] setup = 2 & attack = 2 & p2c2 > 0 -> Knight_accuracy: (attack' = 9) & (p2c2' = p2c2 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p1c2_p2c1_KAvKW] setup = 2 & attack = 3 & p2c1 > 0 -> Archer_accuracy: (attack' = 4) & (p2c1' = p2c1 - Archer_damage) + 1 - Archer_accuracy: (attack' = 4);
+  [p1c2_p2c1_KAvKW] setup = 2 & attack = 3 & p2c1 < 1 -> (attack' = 4);
+  [p1c2_p2c2_KAvKW] setup = 2 & attack = 4 & p2c2 > 0 -> Archer_accuracy: (attack' = 9) & (p2c2' = p2c2 - Archer_damage) + 1 - Archer_accuracy: (attack' = 9);
+  [p1c2_p2c2_KAvKW] setup = 2 & attack = 4 & p2c2 < 1 -> (attack' = 9);
+// Action resolution player 2
+  [p2c1_p1c1_KAvKW] setup = 2 & attack = 5 & p1c1 > 0 -> Knight_accuracy: (attack' = 9) & (p1c1' = p1c1 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p2c1_p1c2_KAvKW] setup = 2 & attack = 6 & p1c2 > 0 -> Knight_accuracy: (attack' = 9) & (p1c2' = p1c2 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p2c2_p1c1_KAvKW] setup = 2 & attack = 7 & p1c1 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c1' = p1c1 - Wizard_damage) & (p1c1_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+  [p2c2_p1c2_KAvKW] setup = 2 & attack = 8 & p1c2 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c2' = p1c2 - Wizard_damage) & (p1c2_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+endmodule
+
+module KAvAW
+// init when setup = 3 or init flipped when setup = 7
+  [begin_KAvAW]	setup = 3 & attack = 10 -> (p1c1' = Knight_health) & (p1c2' = Archer_health) & (p2c1' = Archer_health) & (p2c2' = Wizard_health) & (attack' = 0);
+  [begin_KAvAW]	setup = 7 & attack = 10 -> (p2c1' = Knight_health) & (p2c2' = Archer_health) & (p1c1' = Archer_health) & (p1c2' = Wizard_health) & (attack' = 0) & (setup' = 3);
+// Action decision
+  [p1_turn_KAvAW] setup = 3 & attack = 0 & turn = 1 & p1c1 > 0 & p2c1 > 0 & !p1c1_s -> (attack' = 1) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KAvAW] setup = 3 & attack = 0 & turn = 1 & p1c1 > 0 & p2c2 > 0 & !p1c2_s -> (attack' = 2) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KAvAW] setup = 3 & attack = 0 & turn = 1 & p1c2 > 0 & (p2c1 > 0 | p2c2 > 0) & !p2c2_s -> (attack' = 3) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KAvAW] setup = 3 & attack = 0 & turn = 1 -> (attack' = 9) & (p1c1_s' = false) & (p1c2_s' = false);	// skip
+  [p2_turn_KAvAW] setup = 3 & attack = 0 & turn = 2 & p2c1 > 0 & (p1c1 > 0 | p1c2 > 0) -> (attack' = 5);
+  [p2_turn_KAvAW] setup = 3 & attack = 0 & turn = 2 & p2c2 > 0 & p1c1 > 0 -> (attack' = 7);
+  [p2_turn_KAvAW] setup = 3 & attack = 0 & turn = 2 & p2c2 > 0 & p1c2 > 0 -> (attack' = 8);
+// Action resolution player 1
+  [p1c1_p2c1_KAvAW] setup = 3 & attack = 1 & p2c1 > 0 -> Knight_accuracy: (attack' = 9) & (p2c1' = p2c1 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p1c1_p2c2_KAvAW] setup = 3 & attack = 2 & p2c2 > 0 -> Knight_accuracy: (attack' = 9) & (p2c2' = p2c2 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p1c2_p2c1_KAvAW] setup = 3 & attack = 3 & p2c1 > 0 -> Archer_accuracy: (attack' = 4) & (p2c1' = p2c1 - Archer_damage) + 1 - Archer_accuracy: (attack' = 4);
+  [p1c2_p2c1_KAvAW] setup = 3 & attack = 3 & p2c1 < 1 -> (attack' = 4);
+  [p1c2_p2c2_KAvAW] setup = 3 & attack = 4 & p2c2 > 0 -> Archer_accuracy: (attack' = 9) & (p2c2' = p2c2 - Archer_damage) + 1 - Archer_accuracy: (attack' = 9);
+  [p1c2_p2c2_KAvAW] setup = 3 & attack = 4 & p2c2 < 1 -> (attack' = 9);
+// Action resolution player 2
+  [p2c1_p1c1_KAvAW] setup = 3 & attack = 5 & p1c1 > 0 -> Archer_accuracy: (attack' = 6) & (p1c1' = p1c1 - Archer_damage) + 1 - Archer_accuracy: (attack' = 6);
+  [p2c1_p1c1_KAvAW] setup = 3 & attack = 5 & p1c1 < 1 -> (attack' = 6);
+  [p2c1_p1c2_KAvAW] setup = 3 & attack = 6 & p1c2 > 0 -> Archer_accuracy: (attack' = 9) & (p1c2' = p1c2 - Archer_damage) + 1 - Archer_accuracy: (attack' = 9);
+  [p2c1_p1c2_KAvAW] setup = 3 & attack = 6 & p1c2 < 1 -> (attack' = 9);
+  [p2c2_p1c1_KAvAW] setup = 3 & attack = 7 & p1c1 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c1' = p1c1 - Wizard_damage) & (p1c1_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+  [p2c2_p1c2_KAvAW] setup = 3 & attack = 8 & p2c2 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c2' = p1c2 - Wizard_damage) & (p1c2_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+endmodule
+
+module KWvKW
+// init when setup = 5
+  [begin_KWvKW]	setup = 5 & attack = 10 -> (p1c1' = Knight_health) & (p1c2' = Wizard_health) & (p2c1' = Knight_health) & (p2c2' = Wizard_health) & (attack' = 0);
+// Action decision
+  [p1_turn_KWvKW] setup = 5 & attack = 0 & turn = 1 & p1c1 > 0 & p2c1 > 0 & !p1c1_s -> (attack' = 1) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KWvKW] setup = 5 & attack = 0 & turn = 1 & p1c1 > 0 & p2c2 > 0 & !p1c1_s -> (attack' = 2) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KWvKW] setup = 5 & attack = 0 & turn = 1 & p1c2 > 0 & p2c1 > 0 & !p1c2_s -> (attack' = 3) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KWvKW] setup = 5 & attack = 0 & turn = 1 & p1c2 > 0 & p2c2 > 0 & !p1c2_s -> (attack' = 4) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KWvKW] setup = 5 & attack = 0 & turn = 1 -> (attack' = 9) & (p1c1_s' = false) & (p1c2_s' = false); // skip
+  [p2_turn_KWvKW] setup = 5 & attack = 0 & turn = 2 & p2c1 > 0 & p1c1 > 0 & !p2c1_s -> (attack' = 5) & (p2c1_s' = false) & (p2c2_s' = false);
+  [p2_turn_KWvKW] setup = 5 & attack = 0 & turn = 2 & p2c1 > 0 & p1c2 > 0 & !p2c1_s -> (attack' = 6) & (p2c1_s' = false) & (p2c2_s' = false);
+  [p2_turn_KWvKW] setup = 5 & attack = 0 & turn = 2 & p2c2 > 0 & p1c1 > 0 & !p2c2_s -> (attack' = 7) & (p2c1_s' = false) & (p2c2_s' = false);
+  [p2_turn_KWvKW] setup = 5 & attack = 0 & turn = 2 & p2c2 > 0 & p1c2 > 0 & !p2c2_s -> (attack' = 8) & (p2c1_s' = false) & (p2c2_s' = false);
+  [p2_turn_KWvKW] setup = 5 & attack = 0 & turn = 2 -> (attack' = 9) & (p2c1_s' = false) & (p2c2_s' = false); // skip
+// Action resolution player 1
+  [p1c1_p2c1_KWvKW] setup = 5 & attack = 1 & p2c1 > 0 -> Knight_accuracy: (attack' = 9) & (p2c1' = p2c1 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p1c1_p2c2_KWvKW] setup = 5 & attack = 2 & p2c2 > 0 -> Knight_accuracy: (attack' = 9) & (p2c1' = p2c1 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p1c2_p2c1_KWvKW] setup = 5 & attack = 3 & p2c1 > 0 -> Wizard_accuracy: (attack' = 9) & (p2c1' = p1c1 - Wizard_damage) & (p2c1_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+  [p1c2_p2c2_KWvKW] setup = 5 & attack = 4 & p2c2 > 0 -> Wizard_accuracy: (attack' = 9) & (p2c2' = p1c2 - Wizard_damage) & (p2c2_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+// Action resolution player 2
+  [p2c1_p1c1_KWvKW] setup = 5 & attack = 5 & p1c1 > 0 -> Knight_accuracy: (attack' = 9) & (p1c1' = p1c1 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p2c1_p1c2_KWvKW] setup = 5 & attack = 6 & p1c2 > 0 -> Knight_accuracy: (attack' = 9) & (p1c2' = p1c2 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p2c2_p1c1_KWvKW] setup = 5 & attack = 7 & p1c1 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c1' = p1c1 - Wizard_damage) & (p1c1_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+  [p2c2_p1c2_KWvKW] setup = 5 & attack = 8 & p1c2 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c2' = p1c2 - Wizard_damage) & (p1c2_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+endmodule
+
+module KWvAW
+// init when setup = 6 or init flipped when setup = 8
+  [begin_KWvAW]	setup = 6 & attack = 10 -> (p1c1' = Knight_health) & (p1c2' = Wizard_health) & (p2c1' = Archer_health) & (p2c2' = Wizard_health) & (attack' = 0);
+  [begin_KWvAW]	setup = 8 & attack = 10 -> (p2c1' = Knight_health) & (p2c2' = Wizard_health) & (p1c1' = Archer_health) & (p1c2' = Wizard_health) & (attack' = 0) & (setup' = 6);
+// Action decision
+  [p1_turn_KWvAW] setup = 6 & attack = 0 & turn = 1 & p1c1 > 0 & p2c1 > 0 & !p1c1_s -> (attack' = 1) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KWvAW] setup = 6 & attack = 0 & turn = 1 & p1c1 > 0 & p2c2 > 0 & !p1c1_s -> (attack' = 2) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KWvAW] setup = 6 & attack = 0 & turn = 1 & p1c2 > 0 & p2c1 > 0 & !p1c2_s -> (attack' = 3) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KWvAW] setup = 6 & attack = 0 & turn = 1 & p1c2 > 0 & p2c2 > 0 & !p1c2_s -> (attack' = 4) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KWvAW] setup = 6 & attack = 0 & turn = 1 -> (attack' = 9) & (p1c1_s' = false) & (p1c2_s' = false); // skip
+  [p2_turn_KWvAW] setup = 6 & attack = 0 & turn = 2 & p2c1 > 0 & (p1c1 > 0 | p1c2 > 0) & !p2c1_s -> (attack' = 5) & (p2c1_s' = false) & (p2c2_s' = false);
+  [p2_turn_KWvAW] setup = 6 & attack = 0 & turn = 2 & p2c2 > 0 & p1c1 > 0 & !p2c2_s -> (attack' = 7) & (p2c1_s' = false) & (p2c2_s' = false);
+  [p2_turn_KWvAW] setup = 6 & attack = 0 & turn = 2 & p2c2 > 0 & p1c2 > 0 & !p2c2_s -> (attack' = 8) & (p2c1_s' = false) & (p2c2_s' = false);
+  [p2_turn_KWvAW] setup = 6 & attack = 0 & turn = 2 -> (attack' = 9) & (p2c1_s' = false) & (p2c2_s' = false); // skip
+// Action resolution player 1
+  [p1c1_p2c1_KWvAW] setup = 6 & attack = 1 & p2c1 > 0 -> Knight_accuracy: (attack' = 9) & (p2c1' = p2c1 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p1c1_p2c2_KWvAW] setup = 6 & attack = 2 & p2c2 > 0 -> Knight_accuracy: (attack' = 9) & (p2c1' = p2c1 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
+  [p1c2_p2c1_KWvAW] setup = 6 & attack = 3 & p2c1 > 0 -> Wizard_accuracy: (attack' = 9) & (p2c1' = p1c1 - Wizard_damage) & (p2c1_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+  [p1c2_p2c2_KWvAW] setup = 6 & attack = 4 & p2c2 > 0 -> Wizard_accuracy: (attack' = 9) & (p2c2' = p1c2 - Wizard_damage) & (p2c2_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+// Action resolution player 2
+  [p2c1_p1c1_KWvAW] setup = 6 & attack = 5 & p1c1 > 0 -> Archer_accuracy: (attack' = 6) & (p1c1' = p1c1 - Archer_damage) + 1 - Archer_accuracy: (attack' = 6);
+  [p2c1_p1c1_KWvAW] setup = 6 & attack = 5 & p1c1 < 1 -> (attack' = 6);
+  [p2c1_p1c2_KWvAW] setup = 6 & attack = 6 & p1c2 > 0 -> Archer_accuracy: (attack' = 9) & (p1c2' = p1c2 - Archer_damage) + 1 - Archer_accuracy: (attack' = 9);
+  [p2c1_p1c2_KWvAW] setup = 6 & attack = 6 & p1c2 < 1 -> (attack' = 9);
+  [p2c1_p1c1_KWvAW] setup = 6 & attack = 7 & p1c1 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c1' = p1c1 - Wizard_damage) & (p1c1_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+  [p2c1_p1c2_KWvAW] setup = 6 & attack = 8 & p2c2 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c2' = p1c2 - Wizard_damage) & (p1c2_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+endmodule
+
+module AWvAW
+// init when setup = 9
+  [begin_AWvAW]	setup = 9 & attack = 10 -> (p1c1' = Archer_health) & (p1c2' = Wizard_health) & (p2c1' = Archer_health) & (p2c2' = Wizard_health) & (attack' = 0);
+  // Action decision
+  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p1c1 > 0 & (p2c1 > 0 | p2c2 > 0) & !p1c1_s -> (attack' = 1) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p1c2 > 0 & p2c1 > 0 & !p1c2_s -> (attack' = 3) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p1c2 > 0 & p2c2 > 0 & !p1c2_s -> (attack' = 4) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 -> (attack' = 9) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p2_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p2c1 > 0 & (p1c1 > 0 | p1c2 > 0) & !p2c1_s -> (attack' = 5) & (p2c1_s' = false) & (p2c2_s' = false);
+  [p2_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p2c2 > 0 & p1c1 > 0 & !p2c2_s -> (attack' = 7) & (p2c1_s' = false) & (p2c2_s' = false);
+  [p2_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 & p2c2 > 0 & p1c2 > 0 & !p2c2_s -> (attack' = 8) & (p2c1_s' = false) & (p2c2_s' = false);
+  [p2_turn_AWvAW] setup = 9 & attack = 0 & turn = 2 -> (attack' = 9) & (p2c1_s' = false) & (p2c2_s' = false); // skip
+  // Action resolution player 1
+  [p1c1_p1c1_AWvAW] setup = 9 & attack = 1 & p2c1 > 0 -> Archer_accuracy: (attack' = 6) & (p1c1' = p1c1 - Archer_damage) + 1 - Archer_accuracy: (attack' = 6);
+  [p1c1_p1c1_AWvAW] setup = 9 & attack = 1 & p2c1 < 1 -> (attack' = 6);
+  [p1c1_p1c2_AWvAW] setup = 9 & attack = 2 & p2c2 > 0 -> Archer_accuracy: (attack' = 9) & (p1c2' = p1c2 - Archer_damage) + 1 - Archer_accuracy: (attack' = 9);
+  [p1c1_p1c2_AWvAW] setup = 9 & attack = 2 & p2c2 < 1 -> (attack' = 9);
+  [p1c2_p1c1_AWvAW] setup = 9 & attack = 3 & p2c1 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c1' = p1c1 - Wizard_damage) & (p1c1_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+  [p1c2_p1c2_AWvAW] setup = 9 & attack = 4 & p2c2 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c2' = p1c2 - Wizard_damage) & (p1c2_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+  // Action resolution player 2
+  [p2c1_p1c1_AWvAW] setup = 9 & attack = 5 & p1c1 > 0 -> Archer_accuracy: (attack' = 6) & (p1c1' = p1c1 - Archer_damage) + 1 - Archer_accuracy: (attack' = 6);
+  [p2c1_p1c1_AWvAW] setup = 9 & attack = 5 & p1c1 < 1 -> (attack' = 6);
+  [p2c1_p1c2_AWvAW] setup = 9 & attack = 6 & p1c2 > 0 -> Archer_accuracy: (attack' = 9) & (p1c2' = p1c2 - Archer_damage) + 1 - Archer_accuracy: (attack' = 9);
+  [p2c1_p1c2_AWvAW] setup = 9 & attack = 6 & p1c2 < 1 -> (attack' = 9);
+  [p2c2_p1c1_AWvAW] setup = 9 & attack = 7 & p1c1 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c1' = p1c1 - Wizard_damage) & (p1c1_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+  [p2c2_p1c2_AWvAW] setup = 9 & attack = 8 & p1c2 > 0 -> Wizard_accuracy: (attack' = 9) & (p1c2' = p1c2 - Wizard_damage) & (p1c2_s' = true) + 1 - Wizard_accuracy: (attack' = 9);
+endmodule
+
+label "p1_wins" = (p1c1 > 0 | p1c2 > 0) & p2c2 < 1 & p2c2 < 1 & chars_selected = 4;
+label "p2_wins" = (p2c1 > 0 | p2c2 > 0) & p1c1 < 1 & p1c2 < 1 & chars_selected = 4;
+
+formula health_ceiling = max(Knight_health, Archer_health, Wizard_health);
+formula health_floor = 1 - max(Knight_damage, Archer_damage, Wizard_damage);
