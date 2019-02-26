@@ -245,13 +245,13 @@ endmodule
 formula pos_p1_win = (p1c1 > 0 | p1c2 > 0) & p2c2 < 1 & p2c2 < 1 & chars_selected = 4;
 formula pos_p2_win = (p2c1 > 0 | p2c2 > 0) & p1c1 < 1 & p1c2 < 1 & chars_selected = 4;
 // Final labels
-label "p1_wins" = (pos_p1_win & (status = 1 | status = 2 | status = 3 |
-    status = 5 | status = 6 | status = 9) ) | (pos_p2_win & (status = 4) |
-    status = 7 | status = 8)
+label "p1_wins" = (pos_p1_win & (setup = 1 | setup = 2 | setup = 3 |
+    setup = 5 | setup = 6 | setup = 9) ) | (pos_p2_win & (setup = 4) |
+    setup = 7 | setup = 8);
 
-label "p2_wins" = (pos_p2_win & (status = 1 | status = 2 | status = 3 |
-    status = 5 | status = 6 | status = 9) ) | (pos_p1_win & (status = 4) |
-    status = 7 | status = 8)
+label "p2_wins" = (pos_p2_win & (setup = 1 | setup = 2 | setup = 3 |
+    setup = 5 | setup = 6 | setup = 9) ) | (pos_p1_win & (setup = 4) |
+    setup = 7 | setup = 8);
 
 
 formula health_ceiling = max(Knight_health, Archer_health, Wizard_health);
