@@ -9,11 +9,11 @@ def run(characters, player):
     print("// Action decision for P" + str(player) + ", free strategy")
     action_num = 5
     if player == 1: action_num = 1
-    reset_stuns_string = "(p" + str(player) + "c1_s' = false) & (p" + str(player) + "c2_s' = false);"
+    reset_stuns_string = "(p" + str(player) + "_stun' = 0);"
     for char_num in range(2):
         prefix_string_to_print = "\tattack = 0 & turn = "
         prefix_string_to_print += str(player) + " & p" + str(player) + "c" + str(char_num+1)
-        prefix_string_to_print += " > 0 & p" + str(player) + "c" + str(char_num+1) + "_s = false & "
+        prefix_string_to_print += " > 0 & p" + str(player) + "_stun != " + str(char_num+1) + " & "
         if characters[2*(player-1)+char_num] == "A":
             label = "\t[p" + str(player) + "_turn_" + str(action_num) + "]"
             prefix_string_to_print += "(p" + str(3-player) + "c1 > 0 | p" + str(3-player) + "c2 > 0) -> "
@@ -29,9 +29,6 @@ def run(characters, player):
                 print(string_to_print + reset_stuns_string)
                 action_num += 1
     skip_action = "\t[p" + str(player) + "_turn_skip]\tattack = 0 & turn = "
-    skip_action += str(player) + " & ( (p" + str(player) + "c1_s & p" + str(player) + "c2 < 1) | "
-    skip_action += "(p" + str(player) + "c1 < 1 & p" + str(player) + "c2_s) ) -> (attack' = 9) & "
+    skip_action += str(player) + " & ( (p" + str(player) + "_stun = 1 & p" + str(player) + "c2 < 1) | "
+    skip_action += "(p" + str(player) + "_stun = 2 & p" + str(player) + "c1 < 1) ) -> (attack' = 9) & "
     print(skip_action + reset_stuns_string + " // skip if forced")
-
-
-# run(["K","A","K","W"], 2)

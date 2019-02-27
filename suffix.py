@@ -23,7 +23,7 @@ def run(characters, multiple_init_states):
                     print(action_string)
                 elif characters[2*player+char] == "W":              # if actor is a Wizard
                     action_string += " & " + target + " > 0 -> "
-                    action_string += "Wizard_accuracy: (" + target + "' = " + target + " - Wizard_damage) & (attack' = 9) & (" + target + "_s' = true) + "
+                    action_string += "Wizard_accuracy: (" + target + "' = " + target + " - Wizard_damage) & (attack' = 9) & (" + target[:2] + "_stun' = " + str(opp+1) + ") + "
                     action_string += "1 - Wizard_accuracy: (attack' = 9);"
                     print(action_string)
                 else:                                               # Else actor is an Archer
@@ -37,14 +37,7 @@ def run(characters, multiple_init_states):
     print("endmodule\n")
 
     if multiple_init_states:
-        print("//Multiple initial states\ninit")
-        print("\tattack = 0 & (turn = 1 & (\n\t\t\t(p1c1_s & !p1c2_s) |")
-        print("\t\t\t(!p1c1_s & p1c2_s) |")
-        print("\t\t\t(!p1c1_s & !p1c1_s) \n\t\t\t) & !p2c1_s & !p2c2_s\n\t\t) | (turn = 2 & (")
-        print("\t\t\t(p2c1_s & !p2c2_s) |")
-        print("\t\t\t(!p2c1_s & p2c2_s) |")
-        print("\t\t\t(!p2c1_s & !p2c2_s)")
-        print("\t\t\t) & !p1c1_s & !p1c2_s\n\t\t)\nendinit\n")
+        print("//Multiple initial states\ninit\n\tattack = 0 & turn > 0\nendinit\n")
 # Labels and Formulae
     print('label \"p1_wins\" = (p1c1 > 0 | p1c2 > 0) & p2c1 < 1 & p2c2 < 1;')
     print('label \"p2_wins\" = (p2c1 > 0 | p2c2 > 0) & p1c1 < 1 & p1c2 < 1;')

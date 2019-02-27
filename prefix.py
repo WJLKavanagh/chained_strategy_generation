@@ -2,7 +2,6 @@
 # Generate prefix of PRISM files for CAG.
 # EXAMPLE USAGE: run(["K","A","K","W"], 1, 0, "a")
 
-
 import datetime
 
 # Given character as <char>, find health in config_<config>.txt
@@ -13,7 +12,7 @@ def find_health(char, config):
             return line.split("= ")[1].split(";")[0]
 
 # Main proc:
-# Input: chars as list, model_is_smg as bool, multiple_init_states as bool
+# Input: chars as list, model_is_smg as bool, multiple_init_states as bool, config as str
 # Output: prints prefix of .prism file to stdout
 def run(characters, model_is_smg, multiple_init_states, config):
 # Print comments and model
@@ -53,10 +52,10 @@ def run(characters, model_is_smg, multiple_init_states, config):
             if player_num == 0 and char_num == 0:
                 print("// Health and is_stunned variables")
             if multiple_init_states:
-                print("\tp"+str(player_num+1)+"c"+str(char_num+1)+"\t: [health_floor..health_ceiling];")
+                print("\tp"+str(player_num+1)+"c"+str(char_num+1)+"\t: [health_floor..health_ceiling];\t\t// player " + str(player_num+1) + " character " + str(char_num+1) + " health value")
             else:
                 PxCx_health = find_health(characters[2*player_num+char_num], config)
-                print("\tp"+str(player_num+1)+"c"+str(char_num+1)+"\t: [health_floor..health_ceiling] init " + PxCx_health + ";")
-            print("\tp"+str(player_num+1)+"c"+str(char_num+1)+"_s\t: bool;")
+                print("\tp"+str(player_num+1)+"c"+str(char_num+1)+"\t: [health_floor..health_ceiling] init " + PxCx_health + ";\t// player " + str(player_num+1) + " character " + str(char_num+1) + " health value")
+        print("\tp"+str(player_num+1)+"_stun\t: [0..2]; \t\t\t\t\t// 0 - Neither character stunned, 1 - character 1 stunned, 2 - character 2 stunned")
     print("\n\t[flip_coin]\tturn = 0 -> 0.5 : (turn' = 1) + 0.5 : (turn' = 2);")
     print("\t[next_turn]\tattack = 9 & turn > 0 & (p1c1 > 0 | p1c2 > 0) & (p2c1 > 0 | p2c2 > 0) -> (attack' = 0) & (turn' = 3 - turn);\n")

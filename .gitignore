@@ -1,3 +1,6 @@
 *.pyc
 tmp.*
 *.log
+*.prism
+!full_game.prism
+log.txt
