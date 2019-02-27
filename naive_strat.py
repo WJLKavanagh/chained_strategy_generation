@@ -1,6 +1,6 @@
 # William Kavanagh, Feb 2019
 # Generate stochastic seed strategy for a player in CAG.
-# EXAMPLE USAGE: run(["K","A","K","W"], 1, config)
+# EXAMPLE USAGE: run(["K","A","K","W"], 1)
 
 import random
 
@@ -46,4 +46,3 @@ def run(characters, player):
                     if Oc2_targetable: guard += "p" + str(3-player) + "c2 > 0 ->\n\t\t\t"
                     else: guard += "p" + str(3-player) + "c2 < 1 ->\n\t\t\t"
                     print(guard + command)
-run(["K","A","K","W"], 2)
