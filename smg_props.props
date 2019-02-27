@@ -1,8 +1,0 @@
-<<p1>> Pmax=? [ F "p1_wins"]
-
-<<p2>> Pmax=? [ F "p2_wins"]
-
-<<p1>> Pmax=? [ F "p1_wins" ] + <<p2>> Pmax=? [ F "p2_wins"]
-
-Pmax=? [ F "deadlock" & !"p1_wins" & !"p2_wins"]
-
