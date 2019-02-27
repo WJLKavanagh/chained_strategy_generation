@@ -1,14 +1,14 @@
 smg
 
-const int Knight_health = 4;
+const int Knight_health = 8;
 const int Knight_damage = 3;
 const double Knight_accuracy = 0.7;
 
-const int Archer_health = 3;
+const int Archer_health = 7;
 const int Archer_damage = 2;
 const double Archer_accuracy = 0.8;
 
-const int Wizard_health = 3;
+const int Wizard_health = 7;
 const int Wizard_damage = 2;
 const double Wizard_accuracy = 0.75;
 
