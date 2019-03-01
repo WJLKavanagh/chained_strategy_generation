@@ -15,6 +15,7 @@ import sys, os
 
 config = sys.argv[1]
 output_destination = sys.argv[2]
+on_sand = sys.argv[3]
 
 
 pairs = ["KA","KW","AW"]                # All material choices for a player
@@ -27,7 +28,10 @@ for pair in pairs:                      # For each pair
     free_strat.run(characters, 2)
     suffix.run(characters, 1)
     sys.stdout = sys.__stdout__
-    os.system("prism " + output_destination + "/" + characters + "_smg_mul.prism properties/smg.props -prop 1 -exportstates tmp.sta -exportadvmdp tmp.tra > " + output_destination + "/log.txt")
+    if on_sand:
+        os.system("/scratch/gethin/prism-william/prism/bin/prism " + output_destination + "/" + characters + "_smg_mul.prism properties/smg.props -prop 1 -exportstates tmp.sta -exportadvmdp tmp.tra > " + output_destination + "/log.txt")
+    else:
+        os.system("prism " + output_destination + "/" + characters + "_smg_mul.prism properties/smg.props -prop 1 -exportstates tmp.sta -exportadvmdp tmp.tra > " + output_destination + "/log.txt")
     print("Strategy generated, calculating adversaries..")
     os.stdout = open(output_destination + "/" + pair + "_optimal_strategy.txt", "w+")
     adversarial_strat.run(characters, 1, "tmp")
