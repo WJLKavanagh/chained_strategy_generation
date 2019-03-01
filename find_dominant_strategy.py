@@ -29,12 +29,14 @@ for pair in pairs:                      # For each pair
     suffix.run(characters, 1)
     sys.stdout = sys.__stdout__
     if on_sand:
-        os.system("/scratch/gethin/prism-william/prism/bin/prism " + output_destination + "/" + characters + "_smg_mul.prism properties/smg.props -prop 1 -exportstates tmp.sta -exportadvmdp tmp.tra > " + output_destination + "/log.txt")
+        os.system("/scratch/gethin/prism-william/prism/bin/prism " + output_destination + "/" + characters + "_smg_mul.prism \
+        properties/smg.props -prop 1 -exportstates " + output_destination + "/tmp.sta -exportadvmdp " + output_destination + "/tmp.tra -javamaxmem 400g \
+        > " + output_destination + "/log.txt")
     else:
         os.system("prism " + output_destination + "/" + characters + "_smg_mul.prism properties/smg.props -prop 1 -exportstates tmp.sta -exportadvmdp tmp.tra > " + output_destination + "/log.txt")
     print("Strategy generated, calculating adversaries..")
-    os.stdout = open(output_destination + "/" + pair + "_optimal_strategy.txt", "w+")
-    adversarial_strat.run(characters, 1, "tmp")
+    sys.stdout = open(output_destination + "/" + pair + "_optimal_strategy.txt", "w+")
+    adversarial_strat.run(characters, 1, output_destination + "/tmp")
     sys.stdout = sys.__stdout__
 
 
