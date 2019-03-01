@@ -21,15 +21,16 @@ pairs = ["KA","KW","AW"]                # All material choices for a player
 for pair in pairs:                      # For each pair
     print("Pair: " + pair + " generating optimal strategy..")
     characters = pair+pair              # Generate the optimal strategy for a symmetric setup from the full initial set
-    sys.stdout = open(output_destination + "/" + characters + "_smg_mul.prism", "w")
+    sys.stdout = open(output_destination + "/" + characters + "_smg_mul.prism", "w+")
     prefix.run(characters, 1, 1, config)
     free_strat.run(characters, 1)
     free_strat.run(characters, 2)
     suffix.run(characters, 1)
     sys.stdout = sys.__stdout__
-    os.system("prism " + output_destination + "/" + characters + "_smg_mul.prism properties/smg.props -prop 1 -exportstates tmp.sta -exportadvmdp tmp.tra > " + output_destination + "/log.txt")
+    os.system("prism " + output_destination + "/" + characters + "_smg_mul.prism properties/smg.props -prop 1 -exportstates " + output_destination + "/tmp.sta -exportadvmdp " + output_destination + "/tmp.tra > " + output_destination + "/log.txt")
     print("Strategy generated, calculating adversaries..")
-    
+    os.stdout = open(output_destination + "/" + pair + "_optimal_strategy.txt")
+    adversarial_strat.run(characters, 1, output_destination+"/tmp")
 
 
 
