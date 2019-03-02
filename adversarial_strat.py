@@ -25,8 +25,7 @@ def run(characters, player, file_prefix):
                     guard_comm += state_description[i] + " = " + state_info[i]
                     if i < len(state_description) - 1:
                         guard_comm += " & "
-                guard_comm += " ->\n\t\t\t\t (attack' = " + transitions[state_id] + ") & (p"
-                guard_comm += str(player) + "c1_s' = false) & (p" + str(player) + "c2_s' = false);"
+                guard_comm += " ->\n\t\t\t\t (attack' = " + transitions[state_id] + ") & " + reset_stuns_string
                 print(guard_comm)
     skip_action = "\t[p" + str(player) + "_turn_skip]\tattack = 0 & turn = "
     skip_action += str(player) + " & ( (p" + str(player) + "_stun = 1 & p" + str(player) + "c2 < 1) | "

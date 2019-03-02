@@ -4,3 +4,4 @@ tmp.*
 *.prism
 !full_game.prism
 log.txt
+output/
