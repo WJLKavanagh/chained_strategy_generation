@@ -5,7 +5,7 @@ This work can be run locally on any machine with [Prism-Games](https://www.prism
 
 ## Notes:
 
-* Everything should run locally on atleast a fairly powerful laptop. 
+* Everything should run locally on at least a fairly powerful laptop. 
 * You will need to make the folder used as the output destination before running ($ mkdir output/results)
 * Feel free to make more configurations following the format used for **a** and **b**.
 * If you run any programs fully then please add them to the results folder. Tool 1 is deterministic so only file is needed for each configuration, but tool 2 isn't and more data is always nice. If you copied the full terminal output including the line that called the program into a new file in *results/**config**/**date_and_time**.txt* that would be appreciated.
