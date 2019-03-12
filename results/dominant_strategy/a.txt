@@ -1,0 +1,19 @@
+09:12:30 - william @ ~/Documents/phd/chained_adversary_generation: python find_dominant_strategy.py "a" "output/12_3" 0
+Pair: KA generating optimal strategy, this can take up to 5 minutes ...
+Strategy generated, calculating adversaries..
+Comparing adversary for KW against optimal symmetric strategy for KA, result: 0.5712359839671279
+Comparing adversary for WK against optimal symmetric strategy for KA, result: 0.4700828034688504
+Comparing adversary for AW against optimal symmetric strategy for KA, result: 0.5458307667354054
+Comparing adversary for WA against optimal symmetric strategy for KA, result: 0.48318123938194457
+Pair: KW generating optimal strategy, this can take up to 5 minutes ...
+Strategy generated, calculating adversaries..
+Comparing adversary for KA against optimal symmetric strategy for KW, result: 0.6227191115502247
+Comparing adversary for AK against optimal symmetric strategy for KW, result: 0.7840651285957141
+Comparing adversary for AW against optimal symmetric strategy for KW, result: 0.7226566793003517
+Comparing adversary for WA against optimal symmetric strategy for KW, result: 0.7335160386474312
+Pair: AW generating optimal strategy, this can take up to 5 minutes ...
+Strategy generated, calculating adversaries..
+Comparing adversary for KA against optimal symmetric strategy for AW, result: 0.643924230980949
+Comparing adversary for AK against optimal symmetric strategy for AW, result: 0.5791004831132878
+Comparing adversary for KW against optimal symmetric strategy for AW, result: 0.40886025774621326
+Comparing adversary for WK against optimal symmetric strategy for AW, result: 0.5874731923665815
