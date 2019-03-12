@@ -5,3 +5,4 @@ tmp.*
 !full_game.prism
 log.txt
 output/
+!results/

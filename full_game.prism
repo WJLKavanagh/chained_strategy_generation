@@ -14,7 +14,7 @@ const double Wizard_accuracy = 0.75;
 
 global attack : [0..10] init 10;		// Action decision: 0 - NONE, 1 - p1c1>p2c1, 2 - p1c1>p2c2, 3 - p1c2>p2c1, 4 - p1c2>p2c2, 5 - p2c1>p1c1, 6 - p2c1>p1c2, 7 - p2c2>p1c1, 8 - p2c2 > p1c2, 9 - NEXT TURN, 10 - init.
 global turn   : [0..2];			// Team to act.
-global setup  : [0..9];			// Final setup of characters: 0 - unchosen, 1 - KAvKA, 2 - KAvKW, 3 - KAvAW, 4 - KWvKA, 5 - KWvKW, 6 - KWvAW, 7 - AWvKA, 8 - AWvKW, 9 - AWvAW.
+global setup  : [0..9] init 4;			// Final setup of characters: 0 - unchosen, 1 - KAvKA, 2 - KAvKW, 3 - KAvAW, 4 - KWvKA, 5 - KWvKW, 6 - KWvAW, 7 - AWvKA, 8 - AWvKW, 9 - AWvAW.
 global p1c1   : [health_floor..health_ceiling];
 global p1c2   : [health_floor..health_ceiling];
 global p2c1   : [health_floor..health_ceiling];
@@ -25,45 +25,45 @@ global p2c1_s : bool;
 global p2c2_s : bool;
 
 player p1
-  [select_p1c1], [select_p1c2], [p1_turn_KAvKA], [p1_turn_KAvKW], [p1_turn_KAvAW], [p1_turn_KWvAW], [p1_turn_KWvKW], [p1_turn_AWvAW]
+  [select_p1c1_k], [select_p1c1_a], [select_p1c1_w], [select_p1c2_k], [select_p1c2_a], [select_p1c2_w],[p1_turn_KAvKA], [p1_turn_KAvKW], [p1_turn_KAvAW], [p1_turn_KWvAW], [p1_turn_KWvKW], [p1_turn_AWvAW]
 endplayer
 
 player p2
-  [select_p2c1], [select_p2c2], [p2_turn_KAvKA], [p2_turn_KAvKW], [p2_turn_KAvAW], [p2_turn_KWvAW], [p2_turn_KWvKW], [p2_turn_AWvAW]
+  [select_p2c1_k], [select_p2c1_a], [select_p2c1_w], [select_p2c2_k], [select_p2c2_a], [select_p2c2_w], [p2_turn_KAvKA], [p2_turn_KAvKW], [p2_turn_KAvAW], [p2_turn_KWvAW], [p2_turn_KWvKW], [p2_turn_AWvAW]
 endplayer
 
 module choose_characters
 // A - B - B - A character selection. Use PxCx here to represent selected characters: health_floor - unchosen, 1 - Knight, 2 - Archer, 3 - Wizard
-  chars_selected     : [0..4];
+  chars_selected     : [0..4] init 4;
   [flip_coin]	turn = 0 -> 0.5 : (turn' = 1) + 0.5 : (turn' = 2);
 // Select first character (A1)
-  [select_p1c1]	chars_selected = 0 & turn = 1 -> (p1c1' = 1) & (chars_selected' = chars_selected + 1);
-  [select_p1c1]	chars_selected = 0 & turn = 1 -> (p1c1' = 2) & (chars_selected' = chars_selected + 1);
-  [select_p1c1]	chars_selected = 0 & turn = 1 -> (p1c1' = 3) & (chars_selected' = chars_selected + 1);
-  [select_p2c1]	chars_selected = 0 & turn = 2 -> (p2c1' = 1) & (chars_selected' = chars_selected + 1);
-  [select_p2c1]	chars_selected = 0 & turn = 2 -> (p2c1' = 2) & (chars_selected' = chars_selected + 1);
-  [select_p2c1]	chars_selected = 0 & turn = 2 -> (p2c1' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p1c1_k]	chars_selected = 0 & turn = 1 -> (p1c1' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p1c1_a]	chars_selected = 0 & turn = 1 -> (p1c1' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p1c1_w]	chars_selected = 0 & turn = 1 -> (p1c1' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p2c1_k]	chars_selected = 0 & turn = 2 -> (p2c1' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p2c1_a]	chars_selected = 0 & turn = 2 -> (p2c1' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p2c1_w]	chars_selected = 0 & turn = 2 -> (p2c1' = 3) & (chars_selected' = chars_selected + 1);
 // Select second character (B1)
-  [select_p1c1]	chars_selected = 1 & turn = 2 -> (p1c1' = 1) & (chars_selected' = chars_selected + 1);
-  [select_p1c1]	chars_selected = 1 & turn = 2 -> (p1c1' = 2) & (chars_selected' = chars_selected + 1);
-  [select_p1c1]	chars_selected = 1 & turn = 2 -> (p1c1' = 3) & (chars_selected' = chars_selected + 1);
-  [select_p2c1]	chars_selected = 1 & turn = 1 -> (p2c1' = 1) & (chars_selected' = chars_selected + 1);
-  [select_p2c1]	chars_selected = 1 & turn = 1 -> (p2c1' = 2) & (chars_selected' = chars_selected + 1);
-  [select_p2c1]	chars_selected = 1 & turn = 1 -> (p2c1' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p1c1_k]	chars_selected = 1 & turn = 2 -> (p1c1' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p1c1_a]	chars_selected = 1 & turn = 2 -> (p1c1' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p1c1_w]	chars_selected = 1 & turn = 2 -> (p1c1' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p2c1_k]	chars_selected = 1 & turn = 1 -> (p2c1' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p2c1_a]	chars_selected = 1 & turn = 1 -> (p2c1' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p2c1_w]	chars_selected = 1 & turn = 1 -> (p2c1' = 3) & (chars_selected' = chars_selected + 1);
 // Select third character (B2) - Constraint: P_c1 != P_c2 - Constraint: Knight never in position 2
-  [select_p1c2]	chars_selected = 2 & turn = 2 & p1c1 != 1 -> (p1c2' = 1) & (chars_selected' = chars_selected + 1);
-  [select_p1c2]	chars_selected = 2 & turn = 2 & p1c1 != 2 -> (p1c2' = 2) & (chars_selected' = chars_selected + 1);
-  [select_p1c2]	chars_selected = 2 & turn = 2 & p1c1 != 3 -> (p1c2' = 3) & (chars_selected' = chars_selected + 1);
-  [select_p2c2]	chars_selected = 2 & turn = 1 & p2c1 != 1 -> (p2c2' = 1) & (chars_selected' = chars_selected + 1);
-  [select_p2c2]	chars_selected = 2 & turn = 1 & p2c1 != 2 -> (p2c2' = 2) & (chars_selected' = chars_selected + 1);
-  [select_p2c2]	chars_selected = 2 & turn = 1 & p2c1 != 3 -> (p2c2' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p1c2_k]	chars_selected = 2 & turn = 2 & p1c1 != 1 -> (p1c2' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p1c2_a]	chars_selected = 2 & turn = 2 & p1c1 != 2 -> (p1c2' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p1c2_w]	chars_selected = 2 & turn = 2 & p1c1 != 3 -> (p1c2' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p2c2_k]	chars_selected = 2 & turn = 1 & p2c1 != 1 -> (p2c2' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p2c2_a]	chars_selected = 2 & turn = 1 & p2c1 != 2 -> (p2c2' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p2c2_w]	chars_selected = 2 & turn = 1 & p2c1 != 3 -> (p2c2' = 3) & (chars_selected' = chars_selected + 1);
 // Select fourth character (A2)
-  [select_p1c2]	chars_selected = 3 & turn = 1 & p1c1 != 1 -> (p1c2' = 1) & (chars_selected' = chars_selected + 1);
-  [select_p1c2]	chars_selected = 3 & turn = 1 & p1c1 != 2 -> (p1c2' = 2) & (chars_selected' = chars_selected + 1);
-  [select_p1c2]	chars_selected = 3 & turn = 1 & p1c1 != 3 -> (p1c2' = 3) & (chars_selected' = chars_selected + 1);
-  [select_p2c2]	chars_selected = 3 & turn = 2 & p2c1 != 1 -> (p2c2' = 1) & (chars_selected' = chars_selected + 1);
-  [select_p2c2]	chars_selected = 3 & turn = 2 & p2c1 != 2 -> (p2c2' = 2) & (chars_selected' = chars_selected + 1);
-  [select_p2c2]	chars_selected = 3 & turn = 2 & p2c1 != 3 -> (p2c2' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p1c2_k]	chars_selected = 3 & turn = 1 & p1c1 != 1 -> (p1c2' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p1c2_a]	chars_selected = 3 & turn = 1 & p1c1 != 2 -> (p1c2' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p1c2_w]	chars_selected = 3 & turn = 1 & p1c1 != 3 -> (p1c2' = 3) & (chars_selected' = chars_selected + 1);
+  [select_p2c2_k]	chars_selected = 3 & turn = 2 & p2c1 != 1 -> (p2c2' = 1) & (chars_selected' = chars_selected + 1);
+  [select_p2c2_a]	chars_selected = 3 & turn = 2 & p2c1 != 2 -> (p2c2' = 2) & (chars_selected' = chars_selected + 1);
+  [select_p2c2_w]	chars_selected = 3 & turn = 2 & p2c1 != 3 -> (p2c2' = 3) & (chars_selected' = chars_selected + 1);
 // Init correct module:		1 - KAvKA, 2 - KAvKW, 3 - KAvAW, 4 - KWvKA, 5 - KWvKW, 6 - KWvAW, 7 - AWvKA, 8 - AWvKW, 9 - AWvAW.
   [configure_setup] setup = 0 & p1c1+p1c2 = 3 & p2c1+p2c2 = 3 -> (setup' = 1);			// KA v KA
   [configure_setup] setup = 0 & p1c1+p1c2 = 3 & p2c1+p2c2 = 4 -> (setup' = 2);			// KA v KW
@@ -104,19 +104,19 @@ module KAvKA  // CORRECT
   [p2c2_p1c2_KAvKA] setup = 1 & attack = 8 & p1c2 < 1 -> (attack' = 9);
 endmodule
 
-module KAvKW  // CORRECT
+module KAvKW  // ERROR HERE:    setup = 4 -> opt_1 = 1.0 & opt_2 = 0.0.    setup = 4 -> opt_1 = 0.81, opt_2 = 0.19
 // init when (setup = 2 | setup = 4) - flipped when setup = 4
-  [begin_KAvKW]	setup = 2 & attack = 10 -> (p1c1' = Knight_health) & (p1c2' = Archer_health) & (p2c1' = Knight_health) & (p2c2' = Wizard_health) & (attack' = 0);
-  [begin_KAvKW]	setup = 4 & attack = 10 -> (p1c1' = Knight_health) & (p1c2' = Archer_health) & (p2c1' = Knight_health) & (p2c2' = Wizard_health) & (attack' = 0);
+  [begin_KAvKW]	(setup = 2 | setup = 4) & attack = 10 -> (p1c1' = Knight_health) & (p1c2' = Archer_health) & (p2c1' = Knight_health) & (p2c2' = Wizard_health) & (attack' = 0);
 // Action decision
   [p1_turn_KAvKW] (setup = 2 | setup = 4) & attack = 0 & turn = 1 & p1c1 > 0 & p2c1 > 0 & !p1c1_s -> (attack' = 1) & (p1c1_s' = false) & (p1c2_s' = false);
-  [p1_turn_KAvKW] (setup = 2 | setup = 4) & attack = 0 & turn = 1 & p1c1 > 0 & p2c2 > 0 & !p1c2_s -> (attack' = 2) & (p1c1_s' = false) & (p1c2_s' = false);
-  [p1_turn_KAvKW] (setup = 2 | setup = 4) & attack = 0 & turn = 1 & p1c2 > 0 & (p2c1 > 0 | p2c2 > 0) & !p2c2_s -> (attack' = 3) & (p1c1_s' = false) & (p1c2_s' = false);
-  [p1_turn_KAvKW] (setup = 2 | setup = 4) & attack = 0 & turn = 1 -> (attack' = 9) & (p1c1_s' = false) & (p1c2_s' = false);	// skip
+  [p1_turn_KAvKW] (setup = 2 | setup = 4) & attack = 0 & turn = 1 & p1c1 > 0 & p2c2 > 0 & !p1c1_s -> (attack' = 2) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KAvKW] (setup = 2 | setup = 4) & attack = 0 & turn = 1 & p1c2 > 0 & (p2c1 > 0 | p2c2 > 0) & !p1c2_s -> (attack' = 3) & (p1c1_s' = false) & (p1c2_s' = false);
+  [p1_turn_KAvKW] (setup = 2 | setup = 4) & attack = 0 & turn = 1 & ( (p1c1_s & p1c2 < 1) | (p1c2_s & p1c1 < 1) ) -> (attack' = 9) & (p1c1_s' = false) & (p1c2_s' = false);	// skip
   [p2_turn_KAvKW] (setup = 2 | setup = 4) & attack = 0 & turn = 2 & p2c1 > 0 & p1c1 > 0 -> (attack' = 5);
   [p2_turn_KAvKW] (setup = 2 | setup = 4) & attack = 0 & turn = 2 & p2c1 > 0 & p1c2 > 0 -> (attack' = 6);
   [p2_turn_KAvKW] (setup = 2 | setup = 4) & attack = 0 & turn = 2 & p2c2 > 0 & p1c1 > 0 -> (attack' = 7);
   [p2_turn_KAvKW] (setup = 2 | setup = 4) & attack = 0 & turn = 2 & p2c2 > 0 & p1c2 > 0 -> (attack' = 8);
+  [p2_turn_KAvKW]  (setup = 2 | setup = 4) & attack = 0 & turn = 2 & ( (p2c1_s & p2c2 < 1) | (p2c2_s & p2c1 < 1) ) -> (attack' = 9);
 // Action resolution player 1
   [p1c1_p2c1_KAvKW] (setup = 2 | setup = 4) & attack = 1 & p2c1 > 0 -> Knight_accuracy: (attack' = 9) & (p2c1' = p2c1 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
   [p1c1_p2c2_KAvKW] (setup = 2 | setup = 4) & attack = 2 & p2c2 > 0 -> Knight_accuracy: (attack' = 9) & (p2c2' = p2c2 - Knight_damage) + 1 - Knight_accuracy: (attack' = 9);
@@ -189,7 +189,7 @@ module KWvAW  // CORRECT
 // init when (setup = 6 | setup = 8) - flipped when setup = 8
   [begin_KWvAW]	setup = 6 & attack = 10 -> (p1c1' = Knight_health) & (p1c2' = Wizard_health) & (p2c1' = Archer_health) & (p2c2' = Wizard_health) & (attack' = 0);
   [begin_KWvAW]	setup = 8 & attack = 10 -> (p1c1' = Knight_health) & (p1c2' = Wizard_health) & (p2c1' = Archer_health) & (p2c2' = Wizard_health) & (attack' = 0);
-// Action decision
+// Action decision[select_p2c2_k],
   [p1_turn_KWvAW] (setup = 6 | setup = 8) & attack = 0 & turn = 1 & p1c1 > 0 & p2c1 > 0 & !p1c1_s -> (attack' = 1) & (p1c1_s' = false) & (p1c2_s' = false);
   [p1_turn_KWvAW] (setup = 6 | setup = 8) & attack = 0 & turn = 1 & p1c1 > 0 & p2c2 > 0 & !p1c1_s -> (attack' = 2) & (p1c1_s' = false) & (p1c2_s' = false);
   [p1_turn_KWvAW] (setup = 6 | setup = 8) & attack = 0 & turn = 1 & p1c2 > 0 & p2c1 > 0 & !p1c2_s -> (attack' = 3) & (p1c1_s' = false) & (p1c2_s' = false);
@@ -242,16 +242,14 @@ module AWvAW  // CORRECT
 endmodule
 
 // Used to shorten final labels
-formula pos_p1_win = (p1c1 > 0 | p1c2 > 0) & p2c2 < 1 & p2c2 < 1 & chars_selected = 4;
+formula pos_p1_win = (p1c1 > 0 | p1c2 > 0) & p2c1 < 1 & p2c2 < 1 & chars_selected = 4;
 formula pos_p2_win = (p2c1 > 0 | p2c2 > 0) & p1c1 < 1 & p1c2 < 1 & chars_selected = 4;
-// Final labels
-label "p1_wins" = (pos_p1_win & (setup = 1 | setup = 2 | setup = 3 |
-    setup = 5 | setup = 6 | setup = 9) ) | (pos_p2_win & (setup = 4) |
-    setup = 7 | setup = 8);
+formula flipped = setup = 4 | setup = 7 | setup = 8;
+formula not_flipped = setup = 1 | setup = 2 | setup = 3 | setup = 5 | setup = 6 | setup = 9;
 
-label "p2_wins" = (pos_p2_win & (setup = 1 | setup = 2 | setup = 3 |
-    setup = 5 | setup = 6 | setup = 9) ) | (pos_p1_win & (setup = 4) |
-    setup = 7 | setup = 8);
+// Final labels
+label "p1_wins" = (pos_p1_win & not_flipped) | (pos_p2_win & flipped);
+label "p2_wins" = (pos_p2_win & not_flipped) | (pos_p1_win & flipped);
 
 
 formula health_ceiling = max(Knight_health, Archer_health, Wizard_health);
