@@ -17,6 +17,7 @@ def run(characters, player, file_prefix, always_p1):
         if line[-10:-2] == "p" + str(player) + "_turn_":                        # If the line is relevant
             transitions[line.split(" ")[0]] = line.split("_")[2][:-1]           # Store state_id with attack label
     state_description = ["attack", "turn", "p1c1", "p1c2", "p1_stun", "p2c1", "p2c2", "p2_stun"]
+    flipped_description = ["attack", "turn", "p2c1", "p2c2", "p2_stun", "p1c1", "p1c2", "p1_stun"]
     for line in open(file_prefix+".sta","r").readlines()[1:]:                   # For every state in the model (skip first line)
         if line.split(":(")[1][0] != "0":                                       # If the state is a decision state
             break                                                               # States no longer relevant, end.
@@ -25,21 +26,30 @@ def run(characters, player, file_prefix, always_p1):
             state_id = line.split(":(")[0]                                      # Collect state id
             if state_id in transitions.keys():                                  # If state is valid (states where the game is over are ignored)
                 action_int = transitions[state_id]
-                if always_p1 and player == 2 and int(action_int) < 9:
-                    action_int = str(int(action_int) - 4)
-                guard_comm = "\t[p" + str(player_print) + "_turn_" + action_int + "]\t"    # build guard_comm string
-                for i in range(len(state_description)):                         # Iterate over each VAR in the state
-                    if state_description[i] == "turn" and always_p1:
-                        guard_comm += "turn = 1"
-                    else:
-                        guard_comm += state_description[i] + " = " + state_info[i]
-                    if i < len(state_description) - 1:
-                        guard_comm += " & "
-                guard_comm += " ->\n\t\t\t\t (attack' = " + action_int + ") & " + reset_stuns_string
-                print(guard_comm)
+                if always_p1 and player == 2 and int(action_int) < 9:           # If we need to translate an action for player 1 from player 2...
+                    action_int = str(int(action_int) - 4)                       # Translate the action (i.e. p2c1 -> p1c1 becomes p1c1 -> p2c1, or 5 becomes 1)
+                    guard_comm = "\t[p" + str(player_print) + "_turn_" + action_int + "]\t"    # build guard_comm string
+                    for i in range(len(state_description)):                         # Iterate over each VAR in the state
+                        if state_description[i] == "turn" and always_p1:
+                            guard_comm += "turn = 1"
+                        else:
+                            guard_comm += flipped_description[i] + " = " + state_info[i]
+                        if i < len(state_description) - 1:
+                            guard_comm += " & "
+                    guard_comm += " ->\n\t\t\t\t (attack' = " + action_int + ") & " + reset_stuns_string
+                    print(guard_comm)
+                else:
+                    guard_comm = "\t[p" + str(player_print) + "_turn_" + action_int + "]\t"    # build guard_comm string
+                    for i in range(len(state_description)):                         # Iterate over each VAR in the state
+                        if state_description[i] == "turn" and always_p1:
+                            guard_comm += "turn = 1"
+                        else:
+                            guard_comm += state_description[i] + " = " + state_info[i]
+                        if i < len(state_description) - 1:
+                            guard_comm += " & "
+                    guard_comm += " ->\n\t\t\t\t (attack' = " + action_int + ") & " + reset_stuns_string
+                    print(guard_comm)
     skip_action = "\t[p" + str(player_print) + "_turn_skip]\tattack = 0 & turn = "
     skip_action += str(player_print) + " & ( (p" + str(player_print) + "_stun = 1 & p" + str(player_print) + "c2 < 1) | "
     skip_action += "(p" + str(player_print) + "_stun = 2 & p" + str(player_print) + "c1 < 1) ) ->\n\t\t\t\t(attack' = 9) & "
     print(skip_action + reset_stuns_string + " // skip if forced")
-
-#run("AKKA", 2, "output/10_3/tmp", True)
