@@ -1,0 +1,66 @@
+18:11:53 - william @ ~/Documents/phd/chained_adversary_generation: python find_dominated_material.py "a" output/12_3 0
+Seed strategy generated for: KA, finding adversarial probability for all opposing pairs (this takes about a minute)
+Against the seed strategy, KA has an adversarial probability of: 0.9085221054032868
+Against the seed strategy, AK has an adversarial probability of: 0.9256135351322027
+Against the seed strategy, KW has an adversarial probability of: 0.9514691243761956
+Against the seed strategy, WK has an adversarial probability of: 0.9139032562060576
+Against the seed strategy, AW has an adversarial probability of: 0.9062742209190408
+Against the seed strategy, WA has an adversarial probability of: 0.832021685272729
+Best opponent found to be: WK, generating strategy
+Strategy number 1 generated, finding adversaries for all opposing pairs ...
+Against the last adversarial strategy, KA has an adversarial probability of: 0.7686695908283623
+Against the last adversarial strategy, AK has an adversarial probability of: 0.653406608714749
+Against the last adversarial strategy, KW has an adversarial probability of: 0.7487097521570598
+Against the last adversarial strategy, WK has an adversarial probability of: 0.5114907078689817
+Against the last adversarial strategy, AW has an adversarial probability of: 0.6792842249030999
+Against the last adversarial strategy, WA has an adversarial probability of: 0.7039662078680458
+Best opponent found to be: AW, generating adversarial strategy ...
+Strategy number 2 generated, finding adversaries for all opposing pairs ...
+Against the last adversarial strategy, KA has an adversarial probability of: 0.6935723093517832
+Against the last adversarial strategy, AK has an adversarial probability of: 0.6502536918912549
+Against the last adversarial strategy, KW has an adversarial probability of: 0.5910672495853104
+Against the last adversarial strategy, WK has an adversarial probability of: 0.3605920336551538
+Against the last adversarial strategy, AW has an adversarial probability of: 0.6502460722749326
+Against the last adversarial strategy, WA has an adversarial probability of: 0.5745001779260981
+Best opponent found to be: AK, generating adversarial strategy ...
+Strategy number 3 generated, finding adversaries for all opposing pairs ...
+Against the last adversarial strategy, KA has an adversarial probability of: 0.6026519261423567
+Against the last adversarial strategy, AK has an adversarial probability of: 0.5318113690440271
+Against the last adversarial strategy, KW has an adversarial probability of: 0.429854458911461
+Against the last adversarial strategy, WK has an adversarial probability of: 0.5944540155885369
+Against the last adversarial strategy, AW has an adversarial probability of: 0.46157175720402543
+Against the last adversarial strategy, WA has an adversarial probability of: 0.5541320114133466
+Best opponent found to be: AK, generating adversarial strategy ...
+Strategy number 4 generated, finding adversaries for all opposing pairs ...
+Against the last adversarial strategy, KA has an adversarial probability of: 0.6119093325702405
+Against the last adversarial strategy, AK has an adversarial probability of: 0.5026730627819008
+Against the last adversarial strategy, KW has an adversarial probability of: 0.489903243611694
+Against the last adversarial strategy, WK has an adversarial probability of: 0.5712689971638476
+Against the last adversarial strategy, AW has an adversarial probability of: 0.48493321432540676
+Against the last adversarial strategy, WA has an adversarial probability of: 0.5459068666897735
+Best opponent found to be: AK, generating adversarial strategy ...
+Strategy number 5 generated, finding adversaries for all opposing pairs ...
+Against the last adversarial strategy, KA has an adversarial probability of: 0.6220276892797149
+Against the last adversarial strategy, AK has an adversarial probability of: 0.5004324680546051
+Against the last adversarial strategy, KW has an adversarial probability of: 0.4704131959714248
+Against the last adversarial strategy, WK has an adversarial probability of: 0.5712154346496734
+Against the last adversarial strategy, AW has an adversarial probability of: 0.4868324439089969
+Against the last adversarial strategy, WA has an adversarial probability of: 0.5473885674812723
+Best opponent found to be: AK, generating adversarial strategy ...
+Strategy number 6 generated, finding adversaries for all opposing pairs ...
+Against the last adversarial strategy, KA has an adversarial probability of: 0.6216276884913982
+Against the last adversarial strategy, AK has an adversarial probability of: 0.5000015197097176
+Against the last adversarial strategy, KW has an adversarial probability of: 0.4700828034688504
+Against the last adversarial strategy, WK has an adversarial probability of: 0.5712359839671308
+Against the last adversarial strategy, AW has an adversarial probability of: 0.48318123935621665
+Against the last adversarial strategy, WA has an adversarial probability of: 0.545830766523252
+Best opponent found to be: AK, generating adversarial strategy ...
+Strategy number 7 generated, finding adversaries for all opposing pairs ...
+Against the last adversarial strategy, KA has an adversarial probability of: 0.6216276884913982
+Against the last adversarial strategy, AK has an adversarial probability of: 0.4999999510602335
+Against the last adversarial strategy, KW has an adversarial probability of: 0.4700828034688504
+Against the last adversarial strategy, WK has an adversarial probability of: 0.571235983967128
+Against the last adversarial strategy, AW has an adversarial probability of: 0.48318123935621665
+Against the last adversarial strategy, WA has an adversarial probability of: 0.545830766523252
+Best opponent found to be: AK, generating adversarial strategy ...
+Adversary 8 found to be identical to adversary 7

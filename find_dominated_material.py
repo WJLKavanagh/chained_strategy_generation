@@ -58,6 +58,7 @@ probability for all opposing pairs (this takes about a minute)")
 max_likelihood = 0.0                                                        # Value for highest adversarial likelihood
 best_opponent = chosen_seed_pair                                            # Identity for pair with highest adversarial likelihood
 for pair in pairs:                                                          # For each ordering of each pair
+    results = {}
     for ordering in [pair, pair[1]+pair[0]]:                                # Calculate the adversary against the seed strategy
         characters = ordering + chosen_seed_pair
         sys.stdout = open(output_destination + "/seed_v_" + ordering + ".prism", "w")
@@ -70,9 +71,10 @@ for pair in pairs:                                                          # Fo
         properties/mdp.props -prop 1 > " + output_destination + "/log.txt")
         result_vs_seed = float(find_result(output_destination+ "/log.txt"))
         print("Against the seed strategy, " + ordering + " has an adversarial probability of: " + str(result_vs_seed))
-        if result_vs_seed > max_likelihood:                                     # FIND_MAX
-            max_likelihood = result_vs_seed
-            best_opponent = ordering
+        results[ordering] = result_vs_seed
+    if min(results.values()) > max_likelihood:                              # FIND_MAX with min P of each pair
+        max_likelihood = min(results.values())
+        best_opponent = min(results, key = results.get)
 print("Best opponent found to be: " + best_opponent + ", generating strategy")
 
 characters = best_opponent + chosen_seed_pair
