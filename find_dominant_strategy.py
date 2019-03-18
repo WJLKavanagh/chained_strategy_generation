@@ -51,7 +51,7 @@ for pair in pairs:                      # For each pair
         > " + output_destination + "/log.txt")
     else:
         # "not on sand"
-        os.system("prism " + output_destination + "/" + characters + "_smg_mul.prism properties/smg.props -prop 1 -exportstates " + output_destination + "/tmp.sta -exportadvmdp " + output_destination + "/tmp.tra > " + output_destination + "/log.txt")
+        os.system("prism " + output_destination + "/" + characters + "_smg_mul.prism properties/smg.props -prop 1 -javamaxmem 4g -exportstates " + output_destination + "/tmp.sta -exportadvmdp " + output_destination + "/tmp.tra > " + output_destination + "/log.txt")
     print("Strategy generated, calculating adversaries..")
     # Strategy is encoded in tmp.sta and tmp.tra files.
     sys.stdout = open(output_destination + "/" + pair + "_optimal_strategy.txt", "w+")
@@ -75,5 +75,5 @@ for pair in pairs:                      # For each pair
                     > " + output_destination + "/log.txt")
                 else:
                     # "not on sand"
-                    os.system("prism " + output_destination + "/" + characters + "_OptvAdv.prism properties/mdp.props -prop 2 -exportstates " + output_destination + "/tmp.sta -exportadvmdp " + output_destination + "/tmp.tra > " + output_destination + "/log.txt")
+                    os.system("prism " + output_destination + "/" + characters + "_OptvAdv.prism properties/mdp.props -prop 2 -javamaxmem 4g -exportstates " + output_destination + "/tmp.sta -exportadvmdp " + output_destination + "/tmp.tra > " + output_destination + "/log.txt")
                 print("Comparing adversary for " + opposing_order + " against optimal symmetric strategy for " + pair + ", result: " + find_result(output_destination+"/log.txt"))

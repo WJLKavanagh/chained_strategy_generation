@@ -22,7 +22,7 @@ while line != "":           # For line in results file
         dict_of_likelihoods[pair] = value
     if "Best opponent" in line:
         best_pair = line.split("to be: ")[1].split(", generating")[0]
-        print("Best pair is", best_pair + ": " + str(dict_of_likelihoods[best_pair]))
+        #print("Best pair is", best_pair + ": " + str(dict_of_likelihoods[best_pair]))
         x += [str(iteration) + ":" + best_pair]
         iteration += 1
         y += [dict_of_likelihoods[best_pair]]
@@ -33,14 +33,35 @@ while line != "":           # For line in results file
 
     line = f.readline()
 
-print(x)
-print(y)
+l = len(x)
+l_last_three_quarters = int(l/4)
+KA_total_var = 0
+KW_total_var = 0
+AW_total_var = 0
+for i in range(l_last_three_quarters, l-1):
+    KA_total_var += y[i] - KA[i]
+    KW_total_var += y[i] - KW[i]
+    AW_total_var += y[i] - AW[i]
+KA_var = KA_total_var / l_last_three_quarters
+KW_var = KW_total_var / l_last_three_quarters
+AW_var = AW_total_var / l_last_three_quarters
+
+std = np.std([KA_var, KW_var, AW_var], dtype=np.float64)
+mu = np.mean([KA_var, KW_var, AW_var])
+print("Standard Deviation =",std)
+print("Mean =",mu)
+print("First effective strategy chosen as:", l_last_three_quarters)
+
+y_equals_05 = []
+for elem in range(len(x)-1):
+    y_equals_05 += [0.5]
 
 fig, ax = plt.subplots()
 ax.plot(x[:-1],y, "k-.", label="Greatest adversary")
 ax.plot(x[:-1],KA, "ro", label="Knight-Archer")
 ax.plot(x[:-1],KW, "ys", label="Knight-Wizard")
 ax.plot(x[:-1],AW, "bd", label="Archer-Wizard")
+ax.plot(x[:-1],y_equals_05, "--",)
 plt.xlabel('Iteration:Best pair')
 plt.ylabel('Likelihood')
 plt.xticks(rotation='vertical')

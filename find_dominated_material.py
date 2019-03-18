@@ -108,7 +108,7 @@ while adversary_is_unique(adversary_count):
             suffix.run(characters,0)
             sys.stdout = sys.__stdout__
             os.system("prism " + output_destination + "/adv" + str(adversary_count) + "_v_" + ordering + ".prism \
-            properties/mdp.props -prop 2 -cuddmaxmem 2g > " + output_destination + "/log.txt")
+            properties/mdp.props -prop 2 -cuddmaxmem 2g -javamaxmem 6g > " + output_destination + "/log.txt")
             result_vs_adv = float(find_result(output_destination+ "/log.txt"))
             print("Against the last adversarial strategy, " + ordering + " has an adversarial probability of: " + str(result_vs_adv))
             results[ordering] = result_vs_adv
@@ -127,7 +127,7 @@ while adversary_is_unique(adversary_count):
     sys.stdout = sys.__stdout__
     os.system("prism " + output_destination + "/adv" + str(adversary_count) + "_v_BEST.prism properties/mdp.props -prop 2 \
             -exportadvmdp " + output_destination + "/tmp.tra -exportstates " + output_destination + "/tmp.sta \
-            -cuddmaxmem 2g > " + output_destination + "/log.txt")
+            -cuddmaxmem 2g -javamaxmem 6g > " + output_destination + "/log.txt")
     # update adversary
     adversary_count += 1
     sys.stdout = open(output_destination + "/adversary" + str(adversary_count) + ".txt", "w")
