@@ -19,7 +19,7 @@ import sys, os
 #   For each opposing material in Material (m' in [KA, KW, AW] != m)
 #       For both orderings of the pair (m = c1c2 | c2c1)
 #           Calculate the adversarial probability against the optimal strategy
-#           If both probabilities are under 0.5:
+#           If either of the probabilities is under 0.5:
 #               The strategy is dominant
 
 def find_result(file):
@@ -77,10 +77,3 @@ for pair in pairs:                      # For each pair
                     # "not on sand"
                     os.system("prism " + output_destination + "/" + characters + "_OptvAdv.prism properties/mdp.props -prop 2 -exportstates " + output_destination + "/tmp.sta -exportadvmdp " + output_destination + "/tmp.tra > " + output_destination + "/log.txt")
                 print("Comparing adversary for " + opposing_order + " against optimal symmetric strategy for " + pair + ", result: " + find_result(output_destination+"/log.txt"))
-"""
-
-prefix.run("KAKW", 1, 0, "a")
-free_strat.run("KAKW", 1)
-free_strat.run("KAKW", 2)
-suffix.run("KAKW",0)
-"""
