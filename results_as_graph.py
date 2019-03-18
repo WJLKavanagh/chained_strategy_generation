@@ -1,3 +1,6 @@
+# When saving images please modify the subplots to the following:
+# 0.10, 0.15, 0.98,.0.94, 0.20, 0.20
+
 import sys, matplotlib.pyplot as plt, numpy as np
 
 file = sys.argv[1]
@@ -34,7 +37,7 @@ while line != "":           # For line in results file
     line = f.readline()
 
 l = len(x)
-l_last_three_quarters = int(l/4)
+l_last_three_quarters = max(int(l/4),2)
 KA_total_var = 0
 KW_total_var = 0
 AW_total_var = 0
@@ -52,15 +55,17 @@ print("Standard Deviation =",std)
 print("Mean =",mu)
 print("First effective strategy chosen as:", l_last_three_quarters)
 
+print("Mu of variance for each material - KA =", KA_var, "KW =", KW_var, "AW =", AW_var)
+
 y_equals_05 = []
 for elem in range(len(x)-1):
     y_equals_05 += [0.5]
 
 fig, ax = plt.subplots()
 ax.plot(x[:-1],y, "k-.", label="Greatest adversary")
-ax.plot(x[:-1],KA, "ro", label="Knight-Archer")
-ax.plot(x[:-1],KW, "ys", label="Knight-Wizard")
-ax.plot(x[:-1],AW, "bd", label="Archer-Wizard")
+ax.plot(x[:-1],KA, "ro", label="Knight-Archer", markersize=10)
+ax.plot(x[:-1],KW, "ys", label="Knight-Wizard", markersize=10)
+ax.plot(x[:-1],AW, "bd", label="Archer-Wizard", markersize=10)
 ax.plot(x[:-1],y_equals_05, "--",)
 plt.xlabel('Iteration:Best pair')
 plt.ylabel('Likelihood')
