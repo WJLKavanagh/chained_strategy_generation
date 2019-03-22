@@ -1,5 +1,15 @@
 import sys, matplotlib.pyplot as plt, numpy as np
 
+""" Takes a file
+    Returns:
+        > y = array of max values
+        > 3 dictionaries for m in M with:
+            > material strength (average likelihood in relevant iterations)
+            > win delta (average likelihood above 0.5 in winning & relevant iterations)
+            > loss delta (average likelihood below 0.5 in losing & relevant iterations)
+        > outplay_potential ( avg (max_f(m) - avg(f(m)), m e M )
+
+"""
 def plot_result(file):
     y = []
     KA = []
@@ -24,75 +34,89 @@ def plot_result(file):
             KW += [min(dict_of_likelihoods["KW"], dict_of_likelihoods["WK"])]
             AW += [min(dict_of_likelihoods["AW"], dict_of_likelihoods["WA"])]
             dict_of_likelihoods = {}
-
         line = f.readline()
 
     l = len(y)
     l_last_three_quarters = max(2,int(l/4))
-    KA_total_var = 0
-    KW_total_var = 0
-    AW_total_var = 0
-    for i in range(l_last_three_quarters, l-1):
-        KA_total_var += y[i] - KA[i]
-        KW_total_var += y[i] - KW[i]
-        AW_total_var += y[i] - AW[i]
-    KA_var = KA_total_var / l_last_three_quarters
-    KW_var = KW_total_var / l_last_three_quarters
-    AW_var = AW_total_var / l_last_three_quarters
-    variances = [KA_var, KW_var, AW_var]
 
-    std = np.std(variances, dtype=np.float64)
-    mu = np.mean(variances)
-    return y, std, mu, np.mean(KA[l_last_three_quarters:]), np.mean(KW[l_last_three_quarters:]), np.mean(AW[l_last_three_quarters:]), variances
 
-series_to_plt = {}
-x = ["seed"]
-max_l = 0
-list_of_mu = []
-list_of_std = []
-means_of_KA = []
-means_of_KW = []
-means_of_AW = []
-vars_of_KA = []
-vars_of_KW = []
-vars_of_AW = []
-for i in range(1,int(sys.argv[2])+1):
-    series_to_plt[i], new_mu, new_std, sKA, sKW, sAW, vars  = plot_result(i)
-    list_of_mu += [new_mu]
-    list_of_std += [new_std]
-    means_of_KA += [sKA]
-    means_of_KW += [sKW]
-    means_of_AW += [sAW]
-    vars_of_KA += [vars[0]]
-    vars_of_KW += [vars[1]]
-    vars_of_AW += [vars[2]]
+    KA_dict = {"strength":0, "win_d":0, "loss_d":0, "over_point_5":0}           # declare returned structs
+    KW_dict = {"strength":0, "win_d":0, "loss_d":0, "over_point_5":0}
+    AW_dict = {"strength":0, "win_d":0, "loss_d":0, "over_point_5":0}
+    mat_to_result = {"KA":[KA,KA_dict],"KW":[KW,KW_dict],"AW":[AW,AW_dict]}
+    outplay = 0
+
+    for i in range(l_last_three_quarters, l-1):                                 # Fill dictionaries with totals
+        for m in mat_to_result.keys():
+            mat_to_result[m][1]["strength"] += mat_to_result[m][0][i]
+            if mat_to_result[m][0][i] > 0.5:
+                mat_to_result[m][1]["over_point_5"] += 1
+                mat_to_result[m][1]["win_d"] += (mat_to_result[m][0][i] - 0.5)
+            else:
+                mat_to_result[m][1]["loss_d"] += (0.5 - mat_to_result[m][0][i])
+        outplay += (y[i] - np.mean([KA[i],KW[i],AW[i]]))
+
+    for m in mat_to_result.keys():                                              # Aggregate dictionary values
+        mat_to_result[m][1]["strength"] = mat_to_result[m][1]["strength"] / (l - l_last_three_quarters)
+        if mat_to_result[m][1]["over_point_5"] > 0:
+            mat_to_result[m][1]["win_d"] = mat_to_result[m][1]["win_d"] / mat_to_result[m][1]["over_point_5"]
+        else:
+            mat_to_result[m][1]["win_d"] = 0
+        if mat_to_result[m][1]["over_point_5"] < (l - l_last_three_quarters):
+            mat_to_result[m][1]["loss_d"] = mat_to_result[m][1]["loss_d"] / (l - l_last_three_quarters - mat_to_result[m][1]["over_point_5"])
+        else:
+            mat_to_result[m][1]["loss_d"] = 0
+
+    return y, KA_dict, KW_dict, AW_dict, outplay/(l-l_last_three_quarters)
+
+series_to_plt = {}                          # dictionary of what to plot paired with execution # keys
+all_KA_dict = []                            # list of KA dictionaries
+all_KW_dict = []
+all_AW_dict = []
+x = ["seed"]                                # x-axis
+max_l = 1
+outplay_potential = 0
+                                   # max length of series'
+
+for i in range(1,int(sys.argv[2])+1):       # scrape each result file
+    series_to_plt[i], new_KA, new_KW, new_AW, new_op  = plot_result(i)
+    all_KA_dict += [new_KA]
+    all_KW_dict += [new_KW]
+    all_AW_dict += [new_AW]
+    outplay_potential += new_op / int(sys.argv[2])
     if len(series_to_plt[i]) > max_l: max_l = len(series_to_plt[i])
 
-
-for i in range(1,max_l):
+for i in range(1,max_l):                    # populate x-axis
     x += [i]
 
+# print material results to terminal:
+print()
+total_strength = 0
+mat_to_result = {"KA":all_KA_dict,"KW":all_KW_dict,"AW":all_AW_dict}           # string_descriptors : list of values
+for m in mat_to_result.keys():                                            # Calculate values
+    strength = 0
+    win_d = 0
+    loss_d = 0
+    for entry in mat_to_result[m]:
+        strength += entry["strength"]
+        win_d += entry["win_d"]
+        loss_d += entry["loss_d"]
+    total_strength += strength
+    print(m, "\nStrength = " + str(strength/len(mat_to_result[m])), \
+    "win_d = " + str(win_d/len(mat_to_result[m])), \
+    "loss_d = " + str(loss_d/len(mat_to_result[m])))
+    print()
 
-for i in range(len(list_of_mu)):
-    print("Series", i+1, "\t- var mean =", str(list_of_mu[i])[:6], "var std =", str(list_of_std[i])[:6], \
-    "KA mean =", str(means_of_KA[i])[:6], "KW mean =", str(means_of_KW[i])[:6], "AW mean =", str(means_of_AW[i])[:6], \
-    "KA var =", str(vars_of_KA[i])[:6], "KW var =", str(vars_of_KW[i])[:6], "AW var =", str(vars_of_AW[i])[:6])
-print("~~~"*15)
-print("Mean of \t- var mean =", str(np.mean(list_of_mu))[:6], "var std =", str(np.mean(list_of_std))[:6], \
-"KA mean =", str(np.mean(means_of_KA))[:6], "KW mean =", str(np.mean(means_of_KW))[:6], "AW mean =", str(np.mean(means_of_AW))[:6], \
-"KA var =", str(np.mean(vars_of_KA))[:6], "KW var =", str(np.mean(vars_of_KW))[:6], "AW var =", str(np.mean(vars_of_AW))[:6])
-print("std of \t\t- var mean =", str(np.std(list_of_mu))[:6], "var std =", str(np.std(list_of_std))[:6], \
-"KA mean =", str(np.std(means_of_KA))[:6], "KW mean =", str(np.std(means_of_KW))[:6], "AW mean =", str(np.std(means_of_AW))[:6], \
-"KA var =", str(np.std(vars_of_KA))[:6], "KW var =", str(np.std(vars_of_KW))[:6], "AW var =", str(np.std(vars_of_AW))[:6])
-
-
+# print global results to terminal:
+print("Game\nstrength = " + (str(total_strength/(len(mat_to_result[m])*3))), \
+"outplay_potential = " + str(outplay_potential), "\n")
 
 fig, ax = plt.subplots()
 for j in range(1,len(series_to_plt)+1):
     x_to_plot = ["seed"]
     for k in range(1,len(series_to_plt[j])):
         x_to_plot += [k]
-    ax.plot(x_to_plot,series_to_plt[j], label="series " + str(j))
+    ax.plot(x_to_plot,series_to_plt[j], label="execution " + str(j))
 plt.xlabel('Iteration')
 plt.ylabel('Maximal Likelihood')
 # plt.xticks(rotation='vertical')
