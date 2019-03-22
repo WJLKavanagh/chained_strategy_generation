@@ -1,8 +1,5 @@
 import sys, matplotlib.pyplot as plt, numpy as np
 
-
-
-
 def plot_result(file):
     y = []
     KA = []
