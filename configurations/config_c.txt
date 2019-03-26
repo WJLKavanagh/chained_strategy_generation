@@ -1,8 +1,8 @@
-const int Knight_health = 9;
+const int Knight_health = 8;
 const int Knight_damage = 3;
 const double Knight_accuracy = 0.7;
 
-const int Archer_health = 7;
+const int Archer_health = 6;
 const int Archer_damage = 2;
 const double Archer_accuracy = 0.8;
 
