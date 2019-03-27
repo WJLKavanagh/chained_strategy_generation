@@ -77,11 +77,14 @@ for m in ["KA","KW","AW","max"]:                  # for all material
     second_plot_y += [value]
     print(m, "material strength \t\t=", str(value)[:6])
     if m != "max":
-        print(m, "material over .5 \t\t=", str(material_over_point_5[m][0]/material_over_point_5[m][1])[:6])
+        if material_over_point_5[m][1] > 0:
+            print(m, "material over .5 \t\t=", str(material_over_point_5[m][0]/material_over_point_5[m][1])[:6])
+        else:
+            print(m, "material over .5 \t\t= 0.0")
         if material_under_point_5[m][1] > 0:
             print(m, "material under .5 \t\t=", str(material_under_point_5[m][0]/material_under_point_5[m][1])[:6])
         else:
-            print(m, "material under .5 \t\t= none")
+            print(m, "material under .5 \t\t= 0.0")
         print()
 
 
