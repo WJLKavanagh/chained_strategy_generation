@@ -7,7 +7,9 @@ import sys, matplotlib.pyplot as plt, numpy as np
             > material strength (average likelihood in relevant iterations)
             > win delta (average likelihood above 0.5 in winning & relevant iterations)
             > loss delta (average likelihood below 0.5 in losing & relevant iterations)
+        > iterations (number of relevant iterations)
         > outplay_potential ( avg (max_f(m) - avg(f(m)), m e M )
+        > seed (material pair used for seed strategy)
 
 """
 def plot_result(file):
@@ -18,10 +20,13 @@ def plot_result(file):
     iteration = 1
     file = "results/" + sys.argv[1] + "/" + str(file) + ".txt"
     f = open(file, "r")
-    line = f.readline()
+    line = f.readline()                                 # first line not used
     dict_of_likelihoods = {}                            # dictionary for all 6 results per iteration
     line = f.readline()                                 # Line details seed pair
+    seed = "not found"
     while line != "":           # For line in results file
+        if seed == "not found" and "Seed strategy" in line:
+            seed = line.split(": ")[1].split(",")[0]
         if "probability of:" in line:                                       # If the line is an adversary
             value = float(line.strip().split("of: ")[1])                    # get the likelihood
             pair = line.strip().split("strategy, ")[1].split(" has")[0]     # get the ordering
@@ -37,38 +42,64 @@ def plot_result(file):
         line = f.readline()
 
     l = len(y)
-    l_last_three_quarters = max(2,int(l/4))
-
-
-    KA_dict = {"strength":0, "win_d":0, "loss_d":0, "over_point_5":0}           # declare returned structs
-    KW_dict = {"strength":0, "win_d":0, "loss_d":0, "over_point_5":0}
-    AW_dict = {"strength":0, "win_d":0, "loss_d":0, "over_point_5":0}
+    first_rel = max(2,int(l/4))                                                 # first relevant iteration
+    KA_dict = {"robustness":0, "win_d":0, "loss_d":0}                           # declare returned structs
+    KW_dict = {"robustness":0, "win_d":0, "loss_d":0}
+    AW_dict = {"robustness":0, "win_d":0, "loss_d":0}
     mat_to_result = {"KA":[KA,KA_dict],"KW":[KW,KW_dict],"AW":[AW,AW_dict]}
     outplay = 0
 
-    for i in range(l_last_three_quarters, l-1):                                 # Fill dictionaries with totals
-        for m in mat_to_result.keys():
-            mat_to_result[m][1]["strength"] += mat_to_result[m][0][i]
-            if mat_to_result[m][0][i] > 0.5:
-                mat_to_result[m][1]["over_point_5"] += 1
-                mat_to_result[m][1]["win_d"] += (mat_to_result[m][0][i] - 0.5)
-            else:
-                mat_to_result[m][1]["loss_d"] += (0.5 - mat_to_result[m][0][i])
-        outplay += (y[i] - np.mean([KA[i],KW[i],AW[i]]))
+    for m in ["KA","KW","AW"]:                                                  # fill material dictionaries
+        mat_to_result[m][1]["robustness"] = np.mean(mat_to_result[m][0][first_rel:])
+        over_point_5 = []
+        under_point_5 = []
+        for res in mat_to_result[m][0][first_rel:]:
+            if res > 0.501: over_point_5 += [res - 0.5]                         # ignore rounding errors
+            elif res < 0.499: under_point_5 += [0.5 - res]
+        if len(over_point_5) > 0:  mat_to_result[m][1]["win_d"] = np.mean(over_point_5)
+        else: mat_to_result[m][1]["win_d"] = 0.0
+        if len(under_point_5) > 0: mat_to_result[m][1]["loss_d"] = np.mean(under_point_5)
+        else: mat_to_result[m][1]["loss_d"] = 0.0
 
-    for m in mat_to_result.keys():                                              # Aggregate dictionary values
-        mat_to_result[m][1]["strength"] = mat_to_result[m][1]["strength"] / (l - l_last_three_quarters)
-        if mat_to_result[m][1]["over_point_5"] > 0:
-            mat_to_result[m][1]["win_d"] = mat_to_result[m][1]["win_d"] / mat_to_result[m][1]["over_point_5"]
-        else:
-            mat_to_result[m][1]["win_d"] = 0
-        if mat_to_result[m][1]["over_point_5"] < (l - l_last_three_quarters):
-            mat_to_result[m][1]["loss_d"] = mat_to_result[m][1]["loss_d"] / (l - l_last_three_quarters - mat_to_result[m][1]["over_point_5"])
-        else:
-            mat_to_result[m][1]["loss_d"] = 0
+    outplays = []                                                                   # calculate outplay potential
+    for it in range(first_rel, l-1):
+        outplays += [y[it] - np.mean([KA[it],KW[it],AW[it]])]
+    outplay_potential = np.mean(outplays)
 
-    return y, KA_dict, KW_dict, AW_dict, outplay/(l-l_last_three_quarters)
+    return y, KA_dict, KW_dict, AW_dict, (l - first_rel), outplay_potential, seed
 
+max_l = 1
+series_to_plt = {}
+KA_dict = {"robustness":0, "win_d":0, "loss_d":0}                               # declare printed structs
+KW_dict = {"robustness":0, "win_d":0, "loss_d":0}
+AW_dict = {"robustness":0, "win_d":0, "loss_d":0}
+outplay_potential = 0
+seed_list = []
+it_list = []
+
+for i in range(1,int(sys.argv[2])+1):       # scrape each result file
+    series_to_plt[i], new_KA, new_KW, new_AW, new_it, new_op, new_seed  = plot_result(i)
+    seed_list += [new_seed]
+    it_list += [new_it]
+    outplay_potential += new_it*new_op
+    for m in ["robustness", "win_d", "loss_d"]:
+        KA_dict[m] += new_KA[m]*new_it
+        KW_dict[m] += new_KW[m]*new_it
+        AW_dict[m] += new_AW[m]*new_it
+    if len(series_to_plt[i]) > max_l: max_l = len(series_to_plt[i])
+x = ["seed"] + [range(1,max_l)]
+
+for d in [KA_dict, KW_dict, AW_dict]:
+    for m in ["robustness", "win_d", "loss_d"]:
+        d[m] = d[m] / np.sum(it_list)
+
+for elem in KA_dict.values(): print(elem)
+for elem in KW_dict.values(): print(elem)
+for elem in AW_dict.values(): print(elem)
+print(outplay_potential / np.sum(it_list))
+print(np.mean([KA_dict["robustness"], KW_dict["robustness"], AW_dict["robustness"]]))
+
+"""
 series_to_plt = {}                          # dictionary of what to plot paired with execution # keys
 all_KA_dict = []                            # list of KA dictionaries
 all_KW_dict = []
@@ -76,10 +107,11 @@ all_AW_dict = []
 x = ["seed"]                                # x-axis
 max_l = 1
 outplay_potential = 0
-                                   # max length of series'
+seed_list = []
 
 for i in range(1,int(sys.argv[2])+1):       # scrape each result file
-    series_to_plt[i], new_KA, new_KW, new_AW, new_op  = plot_result(i)
+    series_to_plt[i], new_KA, new_KW, new_AW, new_op, new_seed  = plot_result(i)
+    seed_list += [new_seed]
     all_KA_dict += [new_KA]
     all_KW_dict += [new_KW]
     all_AW_dict += [new_AW]
@@ -110,16 +142,21 @@ for m in mat_to_result.keys():                                            # Calc
 # print global results to terminal:
 print("Game\nstrength = " + (str(total_strength/(len(mat_to_result[m])*3))), \
 "outplay_potential = " + str(outplay_potential), "\n")
+"""
+
 
 fig, ax = plt.subplots()
 for j in range(1,len(series_to_plt)+1):
     x_to_plot = ["seed"]
     for k in range(1,len(series_to_plt[j])):
         x_to_plot += [k]
-    ax.plot(x_to_plot,series_to_plt[j], label="execution " + str(j))
+    ax.plot(x_to_plot,series_to_plt[j], label="execution " + str(j) + " (" + seed_list[j-1] + ")")
+y_equals_05 = [0.5]*(len(x_to_plot)-1)                                                  # to plot y=0.5
+ax.plot(x_to_plot[:-1],y_equals_05, "--",)
 plt.xlabel('Iteration')
 plt.ylabel('Maximal Likelihood')
-# plt.xticks(rotation='vertical')
-legend = ax.legend()
-# Put a nicer background color on the legend.
+plt.tick_params(labelsize=18)
+plt.xlabel('Iteration', fontsize=18)
+plt.ylabel('Likelihood', fontsize=18)
+legend = ax.legend(fontsize=28)
 plt.show()

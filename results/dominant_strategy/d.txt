@@ -1,4 +1,4 @@
-(WoP) wkav@16:43:41 wkav-B250M-D2V:[~/Documents/phd/chained_adversary_generation]: python find_dominant_strategy.py e output/15_3 0
+(WoP) wkav@16:43:41 wkav-B250M-D2V:[~/Documents/phd/chained_adversary_generation]: python find_dominant_strategy.py d output/15_3 0
 Pair: KA generating optimal strategy, this can take up to 5 minutes ...
 Strategy generated, calculating adversaries..
 Comparing adversary for KW against optimal symmetric strategy for KA, result: 0.7900670951335748
