@@ -99,60 +99,15 @@ for elem in AW_dict.values(): print(elem)
 print(outplay_potential / np.sum(it_list))
 print(np.mean([KA_dict["robustness"], KW_dict["robustness"], AW_dict["robustness"]]))
 
-"""
-series_to_plt = {}                          # dictionary of what to plot paired with execution # keys
-all_KA_dict = []                            # list of KA dictionaries
-all_KW_dict = []
-all_AW_dict = []
-x = ["seed"]                                # x-axis
-max_l = 1
-outplay_potential = 0
-seed_list = []
-
-for i in range(1,int(sys.argv[2])+1):       # scrape each result file
-    series_to_plt[i], new_KA, new_KW, new_AW, new_op, new_seed  = plot_result(i)
-    seed_list += [new_seed]
-    all_KA_dict += [new_KA]
-    all_KW_dict += [new_KW]
-    all_AW_dict += [new_AW]
-    outplay_potential += new_op / int(sys.argv[2])
-    if len(series_to_plt[i]) > max_l: max_l = len(series_to_plt[i])
-
-for i in range(1,max_l):                    # populate x-axis
-    x += [i]
-
-# print material results to terminal:
-print()
-total_strength = 0
-mat_to_result = {"KA":all_KA_dict,"KW":all_KW_dict,"AW":all_AW_dict}           # string_descriptors : list of values
-for m in mat_to_result.keys():                                            # Calculate values
-    strength = 0
-    win_d = 0
-    loss_d = 0
-    for entry in mat_to_result[m]:
-        strength += entry["strength"]
-        win_d += entry["win_d"]
-        loss_d += entry["loss_d"]
-    total_strength += strength
-    print(m, "\nStrength = " + str(strength/len(mat_to_result[m])), \
-    "win_d = " + str(win_d/len(mat_to_result[m])), \
-    "loss_d = " + str(loss_d/len(mat_to_result[m])))
-    print()
-
-# print global results to terminal:
-print("Game\nstrength = " + (str(total_strength/(len(mat_to_result[m])*3))), \
-"outplay_potential = " + str(outplay_potential), "\n")
-"""
-
-
 fig, ax = plt.subplots()
 for j in range(1,len(series_to_plt)+1):
-    x_to_plot = ["seed"]
-    for k in range(1,len(series_to_plt[j])):
-        x_to_plot += [k]
+    x_to_plot = ["seed"] + list(range(1,len(series_to_plt[j])))
     ax.plot(x_to_plot,series_to_plt[j], label="execution " + str(j) + " (" + seed_list[j-1] + ")")
-y_equals_05 = [0.5]*(len(x_to_plot)-1)                                                  # to plot y=0.5
-ax.plot(x_to_plot[:-1],y_equals_05, "--",)
+max_x = 0
+for s in series_to_plt.keys():
+    max_x = max(max_x, len(series_to_plt[s]))
+y_equals_05 = [0.5]*(max_x)
+ax.plot(["seed"] + list(range(1,max_x)),y_equals_05, "--",)
 plt.xlabel('Iteration')
 plt.ylabel('Maximal Likelihood')
 plt.tick_params(labelsize=18)
