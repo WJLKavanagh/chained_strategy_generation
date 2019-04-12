@@ -51,6 +51,7 @@ def plot_result(file):
 
     for m in ["KA","KW","AW"]:                                                  # fill material dictionaries
         mat_to_result[m][1]["robustness"] = np.mean(mat_to_result[m][0][first_rel:])
+        """
         over_point_5 = []
         under_point_5 = []
         for res in mat_to_result[m][0][first_rel:]:
@@ -60,6 +61,15 @@ def plot_result(file):
         else: mat_to_result[m][1]["win_d"] = 0.0
         if len(under_point_5) > 0: mat_to_result[m][1]["loss_d"] = np.mean(under_point_5)
         else: mat_to_result[m][1]["loss_d"] = 0.0
+        """
+        over_point_5 = [x - 0.5 for x in mat_to_result[m][0][first_rel:] if x > 0.5]      # distance of all points above 0.5 or 0 if below
+        for padding in range(len(mat_to_result[m][0][first_rel:])-len(over_point_5)):
+            over_point_5 += [0.0]
+        under_point_5 = [0.5 - x for x in mat_to_result[m][0][first_rel:] if x < 0.5]     # same for below
+        for padding in range(len(mat_to_result[m][0][first_rel:])-len(under_point_5)):
+            under_point_5 += [0.0]
+        mat_to_result[m][1]["win_d"] = np.mean(over_point_5)
+        mat_to_result[m][1]["loss_d"] = np.mean(under_point_5)
 
     outplays = []                                                                   # calculate outplay potential
     for it in range(first_rel, l-1):
@@ -92,10 +102,13 @@ x = ["seed"] + [range(1,max_l)]
 for d in [KA_dict, KW_dict, AW_dict]:
     for m in ["robustness", "win_d", "loss_d"]:
         d[m] = d[m] / np.sum(it_list)
-
+print("\nKA: ro, wi, lo")
 for elem in KA_dict.values(): print(elem)
+print("\nKW: ro, wi, lo")
 for elem in KW_dict.values(): print(elem)
+print("\nAW: ro, wi, lo")
 for elem in AW_dict.values(): print(elem)
+print("\nop, mu-ro")
 print(outplay_potential / np.sum(it_list))
 print(np.mean([KA_dict["robustness"], KW_dict["robustness"], AW_dict["robustness"]]))
 
@@ -108,10 +121,8 @@ for s in series_to_plt.keys():
     max_x = max(max_x, len(series_to_plt[s]))
 y_equals_05 = [0.5]*(max_x)
 ax.plot(["seed"] + list(range(1,max_x)),y_equals_05, "--",)
-plt.xlabel('Iteration')
-plt.ylabel('Maximal Likelihood')
 plt.tick_params(labelsize=18)
 plt.xlabel('Iteration', fontsize=18)
-plt.ylabel('Likelihood', fontsize=18)
+plt.ylabel('Probability', fontsize=18)
 legend = ax.legend(fontsize=28)
 plt.show()

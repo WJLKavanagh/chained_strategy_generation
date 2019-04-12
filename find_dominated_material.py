@@ -48,23 +48,23 @@ config = sys.argv[1]
 output_destination = sys.argv[2]
 on_sand = sys.argv[3]
 
-pairs = ["KA","KW","AW"]                                                    # All material choices for a player
-chosen_seed_pair = random.choice(pairs)                                     # Choose one pair for the seed
-sys.stdout = open(output_destination + "/seed_strat.txt", "w")              # Generate some seed strategy
-stochastic_strat.run("KA"+chosen_seed_pair, 2, config)                      # Current using stochastic seed, naive could be used here (opposing pair is irrelevant)
+pairs = ["KA","KW","AW"]                                                        # All material choices for a player
+chosen_seed_pair = random.choice(pairs)                                         # Choose one pair for the seed
+sys.stdout = open(output_destination + "/seed_strat.txt", "w")                  # Generate some seed strategy
+stochastic_strat.run("KA"+chosen_seed_pair, 2, config)                          # Current using stochastic seed, naive could be used here (opposing pair is irrelevant)
 sys.stdout = sys.__stdout__
 print("Seed strategy generated for: " + chosen_seed_pair + ", finding adversarial \
 probability for all opposing pairs (this takes about a minute)")
-max_likelihood = 0.0                                                        # Value for highest adversarial likelihood
-best_opponent = chosen_seed_pair                                            # Identity for pair with highest adversarial likelihood
-for pair in pairs:                                                          # For each ordering of each pair
+max_likelihood = 0.0                                                            # Value for highest adversarial likelihood
+best_opponent = chosen_seed_pair                                                # Identity for pair with highest adversarial likelihood
+for pair in pairs:                                                              # For each ordering of each pair
     results = {}
-    for ordering in [pair, pair[1]+pair[0]]:                                # Calculate the adversary against the seed strategy
+    for ordering in [pair, pair[1]+pair[0]]:                                    # Calculate the adversary against the seed strategy
         characters = ordering + chosen_seed_pair
         sys.stdout = open(output_destination + "/seed_v_" + ordering + ".prism", "w")
         prefix.run(characters, 0, 0, config)
         free_strat.run(characters, 1)
-        print(open(output_destination + "/seed_strat.txt", "r").read())     # Copy in the adversary
+        print(open(output_destination + "/seed_strat.txt", "r").read())         # Copy in the adversary
         suffix.run(characters,0)
         sys.stdout = sys.__stdout__
         os.system("prism " + output_destination + "/seed_v_" + ordering + ".prism \
@@ -72,7 +72,7 @@ for pair in pairs:                                                          # Fo
         result_vs_seed = float(find_result(output_destination+ "/log.txt"))
         print("Against the seed strategy, " + ordering + " has an adversarial probability of: " + str(result_vs_seed))
         results[ordering] = result_vs_seed
-    if min(results.values()) > max_likelihood:                              # FIND_MAX with min P of each pair
+    if min(results.values()) > max_likelihood:                                  # FIND_MAX with min P of each pair
         max_likelihood = min(results.values())
         best_opponent = min(results, key = results.get)
 print("Best opponent found to be: " + best_opponent + ", generating strategy")
